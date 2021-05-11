@@ -309,7 +309,7 @@ var App = function() {
             var form = [
                 {
                     type: 'anchor',
-                    label: 'Buy Now',
+                    label: 'Omisteck',
                     target: '_blank'
                 },
                 {
