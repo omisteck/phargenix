@@ -20,7 +20,10 @@ Route::get('/', function () {
 })->name('welcome');
 
 
-Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+Route::middleware(['isSetup'])->group(function () {
+    Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
+
+});
 
 Route::get('/test', [App\Http\Controllers\TestController::class, 'index'])->name('test');
 

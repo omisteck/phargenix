@@ -41,6 +41,7 @@ class BranchController extends Controller
      */
     public function store(Request $request)
     {
+
         $this->validate($request, [
             'name' => 'required|string|unique:branches,name',
             'shortname' => 'required|string|max:8|unique:branches,shortname',
@@ -50,11 +51,11 @@ class BranchController extends Controller
         ]);
 
         $data = $request->toArray();
-        $data['organization_id'] = auth()->user()->organization->id;
+        $data['organization_id'] = optional(auth()->user()->organization)->id;
         if(empty($data['organization_id'])){
-            return response()->json(['error' => 'Create Organization first'], 428);
+            return response()->json(['errors' => [['Create Organization first']]], 428);
         }
-            
+            // dd($data);
         if(Branch::create($data)){
             return response()->json(['success' => 'Branch Created Successfully'], 200);
         };

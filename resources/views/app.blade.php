@@ -6,8 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, shrink-to-fit=no">
     <title>{{ config('app.name', 'Pharmcount') }}</title>
     <link rel="icon" type="image/x-icon" href="assets/img/favicon.ico"/>
-    <link href="{{  asset('/dashboard/assets/css/loader.css') }}" rel="stylesheet" type="text/css" />
-    <script src="{{  asset('/dashboard/assets/js/loader.js') }}"></script>
+    <!-- <link href="{{  asset('/dashboard/assets/css/loader.css') }}" rel="stylesheet" type="text/css" />
+    <script src="{{  asset('/dashboard/assets/js/loader.js') }}"></script> -->
     <!-- BEGIN GLOBAL MANDATORY STYLES -->
     <link href="https://fonts.googleapis.com/css?family=Quicksand:400,500,600,700&amp;display=swap" rel="stylesheet">
     <!-- <link href="{{  asset('/dashboard/bootstrap/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css" /> -->
@@ -23,7 +23,7 @@
     <link href="{{  asset('/dashboard/assets/css/scrollspyNav.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{  asset('/dashboard/assets/css/components/tabs-accordian/custom-tabs.css') }}" rel="stylesheet" type="text/css" />
 
-  
+    <!-- <link href="{{  asset('/dashboard/assets/css/users/user-profile.css') }}" rel="stylesheet" type="text/css" /> -->
     
 
     <!-- END PAGE LEVEL PLUGINS/CUSTOM STYLES -->
@@ -32,7 +32,7 @@
     <script src="{{ mix('/js/app.js') }}" defer ></script>
 
     <link rel="stylesheet" type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/datatables.css') }}">
-    <link rel="stylesheet" type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/dt-global_style.css') }}">
+    <!-- <link rel="stylesheet" type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/dt-global_style.css') }}"> -->
 
     @routes
   </head>
@@ -59,6 +59,9 @@
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
     <!-- BEGIN PAGE LEVEL SCRIPTS -->
     <script src="{{  asset('/dashboard/assets/js/scrollspyNav.js') }}"></script>
+    <script src="{{  asset('/dashboard/plugins/select2/select2.min.js') }}"></script>
+    <script src="{{  asset('/dashboard/plugins/select2/custom-select2.js') }}"></script>
+
     <!-- END PAGE LEVEL SCRIPTS -->
     <script src="{{  asset('/dashboard/plugins/table/datatable/datatables.js') }}" defer></script>
 

@@ -24,4 +24,9 @@ class Branch extends Model
     {
         return $this->belongsTo(Organization::class);
     }
+
+    public function staffs()
+    {
+        return $this->belongsToMany(User::class);
+    }
 }

@@ -69,8 +69,8 @@
                                                     </tr>
                                                 </thead>
                                                 <tbody>
-                                                    <tr v-for="branch in branches" :key="branch.name" > 
-                                                        <td>{{ branch.name }}</td>
+                                                    <tr v-for="branch in branches" :key="branch.name" role="row"> 
+                                                        <td class="sorting_1">{{ branch.name }}</td>
                                                         <td>{{ branch.shortname }}</td>
                                                         <td>{{ branch.address }}</td>
                                                         <td>{{ branch.phone }}</td>
@@ -81,7 +81,7 @@
                                                             
                                                             <div class="btn-group " role="group">
                                                                 <button id="btnGroupVerticalDrop2" type="button" class="btn btn-secondary btn-sm dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                                                Dropdown
+                                                                Acion
                                                                 </button>
                                                                 <div class="dropdown-menu" aria-labelledby="btnGroupVerticalDrop2">
                                                                     <a class="dropdown-item" href="#" @click="editBranch(branch)">Edit</a>
@@ -248,7 +248,7 @@ export default {
           phone : '',
 
       },
-      branches : [],
+      branches : [{"id": '',"name":'',"shortname":"","address":"","phone":"","email":"","created_at":"","updated_at":""}],
       edit : {},
       delete : '',
       isLoading: false,
@@ -258,7 +258,7 @@ export default {
 
 //   ["business", "branches"],
   
-mounted : function () {
+created : function () {
     this.isLoading = true;
     this.getFreshBranch();
     this.getBusiness()
@@ -296,6 +296,7 @@ components: {
          axios.put(route('branch.update', this.edit.id), this.edit)
         .then((response) => {
                 this.$toast.success(response.data.success);
+                $('#editbranch').modal('hide');
             })
             .catch(error => {
                 this.$toast.error(error.response.data.message, 'Error');
@@ -388,3 +389,7 @@ this.$swal.fire({
 };
 
 </script>
+
+<style>
+@import '/dashboard/plugins/table/datatable/dt-global_style.css';
+</style>
