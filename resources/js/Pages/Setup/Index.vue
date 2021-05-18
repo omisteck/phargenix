@@ -236,8 +236,7 @@ export default {
   data: function () {
     return {
       business:{
-        logo: '',
-        name: '',
+        
         newLogo: '',
       },
       newBranch : {
@@ -248,7 +247,6 @@ export default {
           phone : '',
 
       },
-      branches : [{"id": '',"name":'',"shortname":"","address":"","phone":"","email":"","created_at":"","updated_at":""}],
       edit : {},
       delete : '',
       isLoading: false,
@@ -256,7 +254,20 @@ export default {
     };
   },
 
-//   ["business", "branches"],
+props :{
+    business : {
+        type: Object,
+      default: function () {
+        return { logo: '', name: ''};
+      }
+    }, 
+    branches : {
+         type: Object,
+      default: function () {
+        return [{"id": null,"name":null,"shortname":null,"address":null,"phone":null,"email":null,"created_at":null,"updated_at":null}];
+      }
+    }
+    },
   
 created : function () {
     this.isLoading = true;
@@ -311,8 +322,10 @@ components: {
         .then((response) => {
                 this.isLoading = false;
                 this.$toast.success(response.data.success);
-                this.getFreshBranch();
+                this.newBranch= {};
                 $('#createModel').modal('hide');
+                // this.$inertia.visit('/setup#branch');
+                window.location.reload()
             })
             .catch(error => {
                 this.isLoading = false;

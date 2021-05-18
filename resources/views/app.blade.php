@@ -23,17 +23,20 @@
     <link href="{{  asset('/dashboard/assets/css/scrollspyNav.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{  asset('/dashboard/assets/css/components/tabs-accordian/custom-tabs.css') }}" rel="stylesheet" type="text/css" />
 
-    <!-- <link href="{{  asset('/dashboard/assets/css/users/user-profile.css') }}" rel="stylesheet" type="text/css" /> -->
     
-
+    
     <!-- END PAGE LEVEL PLUGINS/CUSTOM STYLES -->
-
+    
     <link href="{{ mix('/css/app.css') }}" rel="stylesheet" />
     <script src="{{ mix('/js/app.js') }}" defer ></script>
+    
 
-    <link rel="stylesheet" type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/datatables.css') }}">
-    <!-- <link rel="stylesheet" type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/dt-global_style.css') }}"> -->
+<!-- <link id="profile" href="{{  asset('/dashboard/assets/css/users/user-profile.css') }}" rel="stylesheet" type="text/css" /> -->
 
+    <link rel="stylesheet" type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/datatables.css') }}"> 
+    <!-- <link rel="stylesheet" id="table" type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/dt-global_style.css') }}">  -->
+    
+    
     @routes
   </head>
   <body class="dashboard-sales admin-header">
@@ -90,4 +93,3 @@
       });
 
     </script>
-

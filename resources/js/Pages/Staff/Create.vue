@@ -18,8 +18,7 @@
                                                 <div class="user-info-list">
                                 
                                                     <div class="">
-
-
+                                                <form  method="POST" @submit.prevent="createStaff"> 
 
                                                     <div class="form-row mb-4">
                                                         <div class="form-group col-md-6">
@@ -28,35 +27,48 @@
                                                         </div>
                                                         <div class="form-group col-md-6">
                                                             <label for="shortname">Username</label>
-                                                            <input type="text" class="form-control" id="shortname" v-model="staff.username" placeholder="Doe201">
+                                                            <input type="text" class="form-control" id="shortname" v-model="staff.username"  required placeholder="Doe201">
                                                         </div>
+                                                    </div>
+
+                                                     <div class="form-group mb-4">
+                                                        <label for="password">Password</label>
+                                                        <input type="password" class="form-control" id="password" v-model="staff.password" >
                                                     </div>
                     
                                                 <div class="form-row mb-4">
                                                         <div class="form-group col-md-6">
-                                                            <label for="address">Email</label>
-                                                        <input type="text" class="form-control" id="address" v-model="staff.email" required placeholder="Johndoe@gmail.com">
+                                                            <label for="email">Email</label>
+                                                        <input type="text" class="form-control" id="email" v-model="staff.email" placeholder="Johndoe@gmail.com">
                                                         </div>
                                                         <div class="form-group col-md-6">
-                                                            <label for="shortname">Phone</label>
-                                                            <input type="text" class="form-control" id="shortname" v-model="staff.phone" placeholder="09064629981">
+                                                            <label for="phone">Phone</label>
+                                                            <input type="text" class="form-control" id="phone" v-model="staff.phone" required placeholder="09064629981">
                                                         </div>
                                                     </div>
 
                                                     <div class="form-group mb-4">
                                                         <label for="address">Address</label>
-                                                        <input type="text" class="form-control" id="address" v-model="staff.address" required placeholder="1234 Main Street, Lagos State, Nigeria">
+                                                        <input type="text" class="form-control" id="address" v-model="staff.address" placeholder="1234 Main Street, Lagos State, Nigeria">
                                                     </div>
 
                                                      <div class="form-group mb-4">
-                                                        <select class="form-control  basic">
-    <option selected="selected">orange</option>
-    <option>white</option>
-    <option>purple</option>
-</select>
+                                                         <label for="address">Branch</label>
+                                                        <select class="form-control tagging" multiple="multiple" required v-model="staff.branch">
+                                                            <option v-for="branch in branches" :key="branch.id" :value="branch.id"  >{{ branch.name }}</option>
+                                                        </select>
                                                     </div>
-                                                   
-                                                        
+
+
+                                                     <div class="form-group mb-4">
+                                                         <label for="address">Role</label>
+                                                        <select class="form-control" v-model="staff.position" required>
+                                                            <option v-for="role in roles" :key="role.id" :value="role.name" >{{ role.name }}</option>
+                                                        </select>
+                                                    </div>
+
+                                                    <input type="submit" class="mt-4 btn btn-success" value="Create Staff">
+                                                </form>
                                                     </div>                                    
                                                 </div>
                                             </div>
@@ -150,38 +162,67 @@ export default {
     // Using the shorthand
 //   layout: Layout,
 
-
+props : ['branches', 'roles'],
 
   data: function () {
       return {
           staff : {
               name : '',
             username : '',
+            password : '',
             phone : '',
             email : '',
-            address : ''
-        }
+            address : '',
+            position : '',
+            branch : '',
+        },
+        isLoading : false,
     };
   },
 
+mounted : function(){
+
+$(".tagging").select2({
+    tags: true
+});
+
+},
   
-mounted : function () {
-    
+created : function () {
+    $(document).ready(function(){
+    $('#table').remove();
+    $('head').append( $('<link rel="stylesheet" id="profile" type="text/css" />').attr('href', '/dashboard/assets/css/users/user-profile.css') );
+})
     },
 
 components: {
     'layout' : Layout,
-    
+    "vue-select": require("vue-select")
   },
 
   methods: {
-      
+        createStaff(){
+            axios.post(route('user.store'), this.staff)
+        .then((response) => {
+                this.isLoading = false;
+                this.$toast.success(response.data.success);
+                this.staff= {};
+                // this.$inertia.visit('/staffs');
+                window.location.href = '/staffs';
+            })
+            .catch(error => {
+                this.isLoading = false;
+                let errors = error.response.data.errors;
+                for (let field of Object.keys(errors)) {
+                    this.$toast.error(errors[field][0], 'error');
+                }
+            });
+        },
       }
 };
 
+
+
+
 </script>
-<style>
-@import "/dashboard/assets/css/scrollspyNav.css";
-@import "/dashboard/plugins/select2/select2.min.css";
-@import '/dashboard/assets/css/users/user-profile.css';
-</style>
+

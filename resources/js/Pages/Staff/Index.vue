@@ -80,8 +80,9 @@ props : {
   },
 
   
-mounted : function () {
-
+created : function () {
+$('#profile').remove();
+     $('head').append( $('<link rel="stylesheet" id="table" type="text/css" />').attr('href', '/dashboard/plugins/table/datatable/dt-global_style.css') );
 },
 
 components: {
@@ -134,7 +135,3 @@ this.$swal.fire({
 };
 
 </script>
-
-<style>
-@import '/dashboard/plugins/table/datatable/dt-global_style.css';
-</style>
