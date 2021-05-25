@@ -2,6 +2,7 @@
 require('./bootstrap');
 import { App, plugin } from '@inertiajs/inertia-vue'
 import Vue from 'vue'
+
 import { InertiaProgress } from '@inertiajs/progress'
 import VueApexCharts from 'vue-apexcharts'
 import VueSweetalert2 from 'vue-sweetalert2';
@@ -10,8 +11,13 @@ import Toast from "vue-toastification";
 // Import the CSS or use your own!
 import "vue-toastification/dist/index.css";
 
-Vue.use(require('vue-moment'));
+import { CoolSelectPlugin } from 'vue-cool-select'
+ 
+// paste the line below only if you need "bootstrap" theme
+import 'vue-cool-select/dist/themes/bootstrap.css'
 
+Vue.use(require('vue-moment'));
+Vue.use(CoolSelectPlugin)
 
 InertiaProgress.init()
 

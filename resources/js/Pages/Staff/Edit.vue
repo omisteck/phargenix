@@ -8,7 +8,7 @@
                                         <div class="user-profile layout-spacing">
                                             <div class="widget-content widget-content-area">
                                                 <div class="d-flex justify-content-between">
-                                                    <h3 class="">Info</h3>
+                                                    <h3 class="">Edit Info</h3>
                                                     <a href="#" class="mt-2 edit-profile"> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-3"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></a>
                                                 </div>
                                                 <div class="text-center user-info">
@@ -18,7 +18,7 @@
                                                 <div class="user-info-list">
                                 
                                                     <div class="">
-                                                <form  method="POST" @submit.prevent="createStaff"> 
+                                                <form  method="POST" @submit.prevent="updateStaff"> 
 
                                                     <div class="form-row mb-4">
                                                         <div class="form-group col-md-6">
@@ -59,6 +59,16 @@
     v-model="staff.branch"
     :options="branches"
 ></vue-taggable-select>
+<div class="mt-3">
+<h6>Selected: </h6>
+<p class="text-secondary">
+    <button type="button" @click="deleteBranch(branch)" class="btn btn-primary m-2" v-for="branch in branch" :key="branch">
+  {{ branch }} <span class="badge badge-danger">x</span>
+  <span class="sr-only">delete</span>
+</button>
+ </p>
+</div>
+
                                                     </div>
 
 
@@ -69,7 +79,7 @@
                                                         </select>
                                                     </div>
 
-                                                    <input type="submit" class="mt-4 btn btn-success" value="Create Staff">
+                                                    <input type="submit" class="mt-4 btn btn-success" value="Update Staff">
                                                 </form>
                                                     </div>                                    
                                                 </div>
@@ -165,25 +175,16 @@ export default {
     // Using the shorthand
 //   layout: Layout,
 
-props : ['branches', 'roles'],
+props : ['staff', 'branches', 'roles', 'branch' ],
 
   data: function () {
       return {
-          staff : {
-              name : '',
-            username : '',
-            password : '',
-            phone : '',
-            email : '',
-            address : '',
-            position : '',
-            branch : [],
-        },
-        isLoading : false,
     };
   },
 
-  
+mounted : function(){
+    this.staff.branch = this.branch;
+},
 created : function () {
     $(document).ready(function(){
     $('#table').remove();
@@ -197,14 +198,11 @@ components: {
   },
 
   methods: {
-        createStaff(){
-            axios.post(route('user.store'), this.staff)
+        updateStaff(){
+            axios.put(route('user.update', this.staff.id), this.staff)
         .then((response) => {
-                this.isLoading = false;
                 this.$toast.success(response.data.success);
-                this.staff= {};
-                // this.$inertia.visit('/staffs');
-                window.location.href = '/staffs';
+                this.$inertia.reload();
             })
             .catch(error => {
                 this.isLoading = false;
@@ -213,6 +211,38 @@ components: {
                     this.$toast.error(errors[field][0], 'error');
                 }
             });
+        },
+        deleteBranch(branch){
+            this.$swal.fire({
+  title: 'Are you sure?',
+  text: "You won't be able to revert this!",
+  icon: 'warning',
+  showCancelButton: true,
+  confirmButtonColor: '#3085d6',
+  cancelButtonColor: '#d33',
+  confirmButtonText: 'Yes, delete it!',
+  cancelButtonText: 'No, cancel!',
+  reverseButtons: true
+}).then((result) => {
+  if (result.isConfirmed) {
+      this.isLoading = true;
+            axios.post(route('deleteBranch',{'branch': branch, 'user' : this.staff.id }))
+            .then((response) => {
+               this.$swal.fire(
+                    'Deleted!',
+                    'Your deleted a staff successfully.',
+                    'success'
+                    );
+                this.$inertia.reload();
+            })
+             .catch(error => {
+                let errors = error.response.data.errors;
+                for (let field of Object.keys(errors)) {
+                    this.$toast.error(errors[field][0], 'error');
+                }
+            });
+  } 
+})
         },
       }
 };

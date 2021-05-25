@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Branch;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 class BranchController extends Controller
@@ -121,5 +122,12 @@ class BranchController extends Controller
             return response()->json(['success' => 'Branch Successfully Deleted'], 200);
         }
 
+    }
+
+    public function delete( Request $request)
+    {
+        $bran = Branch::where('name',$request->branch)->first();
+        DB::table('branch_user')->where('user_id', $request->user)->where('branch_id', $bran->id)->where('organization_id', auth()->user()->organization->id)->delete();
+        return response()->json(['success' => 'User successfully removed from a branch'], 200);
     }
 }

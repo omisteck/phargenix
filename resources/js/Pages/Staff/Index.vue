@@ -31,7 +31,7 @@
                                                                 Action
                                                                 </button>
                                                                 <div class="dropdown-menu" aria-labelledby="btnGroupVerticalDrop2">
-                                                                    <inertia-link href="$route('')" class="dropdown-item">Edit</inertia-link>
+                                                                    <inertia-link :href="$route('user.edit', staff.id)" class="dropdown-item">Edit</inertia-link>
                                                                     <a class="dropdown-item text-danger " @click="deleteStaff(staff)" href="#">Delete</a>
                                                                 </div>
                                                             </div>

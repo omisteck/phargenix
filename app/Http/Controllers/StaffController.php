@@ -25,14 +25,14 @@ class StaffController extends Controller
     public function index()
     {
 
-        $organization = User::find(1)->organization;
+        $organization = auth()->user()->organization;
         $staffs = collect();
         $staffs_record = DB::table('branch_user')->where("organization_id", $organization->id)->get();
         $staffs_record;
+
         foreach ($staffs_record as $staff) {
-            $staff = User::where('id',$staff->id)->with(['branch'])->get();
-            $staffs = $staffs->merge($staff);
-            
+            $staff_single = User::where('id',$staff->user_id)->with(['branch'])->get();
+            $staffs = $staffs->merge($staff_single);
         }
         
         // $branches = auth()->user()->organization->branches;

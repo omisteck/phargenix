@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -30,7 +31,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $branches = Auth::user()->organization->branches;
+        $branches = Auth::user()->organization->branches->pluck('name');
         $roles = Role::all();
 
         return Inertia::render('Staff/Create', ['branches' => $branches, 'roles' => $roles ]);
@@ -68,7 +69,8 @@ class UserController extends Controller
         $newStaff->assignRole($request->position);
 
             foreach($request->branch as $branch){
-                DB::table('branch_user')->create([]);
+                $bran = Branch::where('name',$branch)->first();
+                DB::table('branch_user')->insert(['user_id' => $newStaff->id, 'branch_id' => $bran->id, 'organization_id' => auth()->user()->organization->id]);
             }
     }
 
@@ -91,7 +93,10 @@ class UserController extends Controller
      */
     public function edit(User $user)
     {
-        //
+        $branches = Auth::user()->organization->branches->pluck('name');
+        $userBranchs = $user->branch->pluck('name');
+        $roles = Role::all();
+        return Inertia::render('Staff/Edit',['staff' => $user, 'roles' => $roles, 'branch' => $userBranchs, "branches" => $branches ]);
     }
 
     /**
@@ -103,7 +108,52 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        //
+     
+        $this->validate($request, [
+            'name' => 'required|string',
+            'username' => 'required|string',
+            'phone' => 'required|string|max:20',
+            'position' => 'required|string',
+            'branch' => 'required',
+        ]);
+
+        if($request->has('password')){
+            $password = Hash::make($request->password);
+            
+            $user->update([
+                'name' => $request->name, 
+                'password'  => $password,
+                'username'  => $request->username,
+                'phone'  =>     $request->phone,
+                'position'  => $request->position,
+                'address'  => $request->address,
+                'email'  => $request->email
+                ]);
+        }else{
+            $user->update([
+                'name' => $request->name, 
+                'username'  => $request->username,
+                'phone'  =>     $request->phone,
+                'position'  => $request->position,
+                'address'  => $request->address,
+                'email'  => $request->email
+            ]);
+        }
+
+        if(!$user->hasRole($request->position)){
+            $user->syncRoles($request->position);
+        } 
+        $connected_branch = $user->branch;
+        foreach($request->branch as $branch){
+            if(!in_array($branch, $connected_branch->pluck('name')->toArray())){
+                $bran = Branch::where('name',$branch)->first();
+                DB::table('branch_user')->insert(['user_id' => $user->id, 'branch_id' => $bran->id, 'organization_id' => auth()->user()->organization->id]);
+            }
+        }
+        
+
+        return response()->json(['success' => 'Staff Successfully Updated'], 200);
+
     }
 
     /**
