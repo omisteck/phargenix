@@ -17,13 +17,14 @@
                                   <div class="header-actions">
                                       <div class="nav-item dropdown language-dropdown more-dropdown">
                                           <div class="dropdown custom-dropdown-icon">
-                                              <a class="dropdown-toggle btn" href="#" role="button" id="customDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><img src="/dashboard/assets/img/flag-ca2.svg" class="flag-width" alt="flag"><span>English</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
+                                              <a class="dropdown-toggle btn btn-success" href="#" role="button" id="customDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                                  
+                                                  <span>{{ $page.props.user.branch.active.shortname }}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down text-white"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
 
-                                              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="customDropdown">
-                                                  <a class="dropdown-item" data-img-value="flag-de3" data-value="German" href="javascript:void(0);"><img src="/dashboard/assets/img/flag-de3.svg" class="flag-width" alt="flag"> German</a>
-                                                  <a class="dropdown-item" data-img-value="flag-sp" data-value="Spanish" href="javascript:void(0);"><img src="/dashboard/assets/img/flag-sp.svg" class="flag-width" alt="flag"> Spanish</a>
-                                                  <a class="dropdown-item" data-img-value="flag-fr3" data-value="French" href="javascript:void(0);"><img src="/dashboard/assets/img/flag-fr3.svg" class="flag-width" alt="flag"> French</a>
-                                                  <a class="dropdown-item" data-img-value="flag-ca2" data-value="English" href="javascript:void(0);"><img src="/dashboard/assets/img/flag-ca2.svg" class="flag-width" alt="flag"> English</a>
+                                              <div class="dropdown-menu dropdown-menu-right" aria-labelledby="customDropdown" v-if="$page.props.user.branches.length > 1">
+                                                  <span v-for="branch in $page.props.user.branches" :key="branch.id">
+                                                    <a  @click="changeBranch(branch)" class="dropdown-item active" data-img-value="flag-de3" :data-value="branch.shortname" href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> {{branch.shortname}}</a>
+                                                  </span>
                                               </div>
                                           </div>
                                       </div>
@@ -39,5 +40,20 @@
 <script>
 export default {
     props: ['title'],
+    methods: {
+        changeBranch(branch){
+            axios.post(route('changeBranch'), branch)
+        .then((response) => {
+                window.location='';
+            })
+            .catch(error => {
+                this.isLoading = false;
+                let errors = error.response.data.errors;
+                for (let field of Object.keys(errors)) {
+                    this.$toast.error(errors[field][0], 'error');
+                }
+            })
+        },
+    },
 }
 </script>

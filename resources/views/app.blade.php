@@ -15,10 +15,86 @@
     <link href="{{  asset('/dashboard/assets/css/structure.css') }}" rel="stylesheet" type="text/css" class="structure" />
     <link href="{{  asset('/dashboard/assets/css/main.css') }}" rel="stylesheet" type="text/css" />
     <!-- END GLOBAL MANDATORY STYLES -->
+    <link href="{{  asset('/dashboard/assets/css/apps/invoice-preview.css') }}" rel="stylesheet" type="text/css" />
+        <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES -->
+
+        <style>
+        /*
+            The below code is for DEMO purpose --- Use it if you are using this demo otherwise Remove it
+        */
+        .navbar .navbar-item.navbar-dropdown {
+            margin-left: auto;
+        }
+
+
+        .alt-menu #content .col-right {
+            position: fixed;
+            top: 0;
+            width: 310px;
+            right: -380px;
+            border-radius: 0;
+            z-index: 1029!important;
+            transition: .3s ease all;
+            width: 348px;
+        }
+        .alt-menu #content .col-right.show {
+            right: 0;
+        }
+        .alt-menu.admin-header .toggle-notification-bar {
+            display: block;
+            cursor: pointer;
+        }
+        .alt-menu.overlay.show {
+            display: block;
+            opacity: .7;
+        }
+        .alt-menu.admin-header .toggle-notification-bar svg {
+            width: 19px;
+            height: 19px;
+            stroke-width: 1.6px;
+        }
+        .alt-menu .col-right-content .col-right-content-container {
+            position: relative;
+            height: calc(100vh - 92px);
+            padding: 0 0 0 0;
+        }
+
+        #content .col-left {
+            margin-right: 0;
+        }
+
+        @media (max-width: 399px) {
+            .alt-menu .col-right-content .col-right-content-container {
+                padding-right: 15px;
+            }
+        }
+
+        /*
+            Just for demo purpose ---- Remove it.
+        */
+        /*<starter kit design>*/
+
+        .widget-one {
+
+        }
+        .widget-one h6 {
+            font-size: 20px;
+            font-weight: 600;
+            letter-spacing: 0px;
+            margin-bottom: 22px;
+        }
+        .widget-one p {
+            font-size: 15px;
+            margin-bottom: 0;
+        }
+
+    </style>
+
+    <!-- END PAGE LEVEL PLUGINS/CUSTOM STYLES -->
 
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM STYLES -->
 
-    <link href="{{  asset('/dashboard/assets/css/dashboard/dash_2.css') }}" rel="stylesheet" type="text/css" class="dashboard-analytics" />
+    <link class='remove' href="{{  asset('/dashboard/assets/css/dashboard/dash_2.css') }}" rel="stylesheet" type="text/css" class="dashboard-analytics" />
 
     <link href="{{  asset('/dashboard/assets/css/scrollspyNav.css') }}" rel="stylesheet" type="text/css" />
     <link href="{{  asset('/dashboard/assets/css/components/tabs-accordian/custom-tabs.css') }}" rel="stylesheet" type="text/css" />
@@ -31,18 +107,23 @@
     <script src="{{ mix('/js/app.js') }}" defer ></script>
     
 
-<!-- <link id="profile" href="{{  asset('/dashboard/assets/css/users/user-profile.css') }}" rel="stylesheet" type="text/css" /> -->
-
     <link rel="stylesheet" type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/datatables.css') }}"> 
-    <!-- <link rel="stylesheet" id="table" type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/dt-global_style.css') }}">  -->
+    <!-- <link rel="stylesheet" id="table" class='remove' type="text/css" href="{{  asset('/dashboard/plugins/table/datatable/dt-global_style.css') }}">  -->
     
     
     @routes
   </head>
-  <body class="dashboard-sales admin-header">
+  <body class="sidebar-noneoverflow starterkit admin-header alt-menu">
 
   @inertia
   <script src="{{  asset('/dashboard/assets/js/libs/jquery-3.1.1.min.js') }}"> </script>
+  <script>
+  @auth
+    window.Permissions = {!! json_encode(Auth::user()->allPermissions, true) !!};
+  @else
+    window.Permissions = [];
+  @endauth
+</script>
 </body>
 </html>
     
@@ -62,34 +143,19 @@
     <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
     <!-- BEGIN PAGE LEVEL SCRIPTS -->
     <script src="{{  asset('/dashboard/assets/js/scrollspyNav.js') }}"></script>
-    <script src="{{  asset('/dashboard/plugins/select2/select2.min.js') }}"></script>
-    <script src="{{  asset('/dashboard/plugins/select2/custom-select2.js') }}"></script>
+    <!-- <script src="{{  asset('/dashboard/plugins/select2/select2.min.js') }}"></script>
+    <script src="{{  asset('/dashboard/plugins/select2/custom-select2.js') }}"></script> -->
 
     <!-- END PAGE LEVEL SCRIPTS -->
-    <script src="{{  asset('/dashboard/plugins/table/datatable/datatables.js') }}" defer></script>
+    <!-- <script src="{{  asset('/dashboard/plugins/table/datatable/datatables.js') }}" defer></script> -->
 
         <script >
         $(document).ready(function() {
             App.init();
             $('#load_screen').remove();
 
-       
-        $('#zero-config').DataTable({
-            "dom": "<'dt--top-section'<'row'<'col-12 col-sm-6 d-flex justify-content-sm-start justify-content-center'l><'col-12 col-sm-6 d-flex justify-content-sm-end justify-content-center mt-sm-0 mt-3'f>>>" +
-        "<'table-responsive'tr>" +
-        "<'dt--bottom-section d-sm-flex justify-content-sm-between text-center'<'dt--pages-count  mb-sm-0 mb-3'i><'dt--pagination'p>>",
-            "oLanguage": {
-                "oPaginate": { "sPrevious": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>', "sNext": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-right"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>' },
-                "sInfo": "Showing page _PAGE_ of _PAGES_",
-                "sSearch": '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-search"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>',
-                "sSearchPlaceholder": "Search...",
-               "sLengthMenu": "Results :  _MENU_",
-            },
-            "stripeClasses": [],
-            "lengthMenu": [5, 10, 20, 50],
-            "pageLength": 5 
-        });
-
       });
+      
 
     </script>
+

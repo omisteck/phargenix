@@ -24,7 +24,23 @@ class SupplierController extends Controller
     public function index()
     {
         $supplier = Supplier::all();
-        return Inertia::render("Supplier/Index",[ 'suppliers' => $supplier ]);
+        return Inertia::render("Supplier/Index");
+    }
+
+    public function search(Request $request){
+        
+        ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+        
+        $supplier = auth()->user()->organization->suppliers();
+        if($request->has('search') && $request->search != ''){
+
+            $supplier->where('name', 'LIKE', '%'.$request->search .'%')
+                    ->orWhere('contact','LIKE', '%'.$request->search .'%')
+                    ->orWhere('sales_rep','LIKE', '%'.$request->search .'%')
+                    ->orWhere('sales_rep_contact','LIKE', '%'.$request->search .'%');
+        }
+        $supplier = $supplier->paginate($pagination);
+    	return response()->json($supplier);
     }
 
     /**
@@ -50,7 +66,13 @@ class SupplierController extends Controller
             'contact' => 'required|string',
         ]);
 
-        if(Supplier::create($request->all())){
+        if(Supplier::create([
+            'name' => $request->name,
+            'contact' => $request->contact,
+            'sales_rep' => $request->sales_rep,
+            'sales_rep_contact' => $request->sales_rep_contact,
+            'organization_id' => auth()->user()->organization->id,
+        ])){
             return response()->json(['success' => 'Supplier Successfully created'], 200);
         }
     }

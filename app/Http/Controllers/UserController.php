@@ -31,10 +31,7 @@ class UserController extends Controller
      */
     public function create()
     {
-        $branches = Auth::user()->organization->branches->pluck('name');
-        $roles = Role::all();
-
-        return Inertia::render('Staff/Create', ['branches' => $branches, 'roles' => $roles ]);
+        
     }
 
     /**
@@ -72,6 +69,7 @@ class UserController extends Controller
                 $bran = Branch::where('name',$branch)->first();
                 DB::table('branch_user')->insert(['user_id' => $newStaff->id, 'branch_id' => $bran->id, 'organization_id' => auth()->user()->organization->id]);
             }
+            return response()->json(['success' => 'Staff Successfully Created'], 200);
     }
 
     /**

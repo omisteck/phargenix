@@ -16,8 +16,10 @@ class CreateCategoriesTable extends Migration
         Schema::create('categories', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->foreignId('organization_id')->references('id')->on('organizations')->onDelete('cascade');
             $table->enum('status', ['active', 'deactivated']);
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

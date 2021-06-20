@@ -1,7 +1,7 @@
 <template>
 <layout :page_title="'Setup'">
   <div class="row">
-    <div class="col-lg-12 col-12 layout-spacing">
+    <div class="col-lg-10 col-12 layout-spacing">
                                         <div class="statbox widget box box-shadow">
                                             <div class="widget-header">
                                                 <div class="row">
@@ -10,7 +10,9 @@
                                                     </div>
                                                 </div>
                                             </div>
-                                            
+
+
+
                                             <div class="widget-content widget-content-area animated-underline-content">
                                                 
                                                 <ul class="nav nav-tabs  mb-3" id="animateLine" role="tablist">
@@ -29,7 +31,7 @@
                                                              <div class="form-row mt-2">
                                                       <div class="form-group col-md-6">
                                                           <label for="inputEmail4">Logo</label>
-                                                          <div v-if="business.logo == ''">
+                                                          <div v-if="notEmptyObject(business) === 0">
                                                             <vue-dropify :multiple="false" v-model="business.newLogo"/>
                                                           </div>
                                                           <div v-else>
@@ -55,22 +57,48 @@
 <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
                 <button type="button" class="btn btn-primary mb-3 ml-3" data-toggle="modal" data-target="#createModel">Create Branch</button>
                                     <div class="col-xl-12 col-lg-12 col-sm-12  layout-spacing">
-                                        <div class="widget-content widget-content-area br-6">
-                                            <table id="zero-config" class="table dt-table-hover" style="width:100%">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Name</th>
+
+                                                                        <div class="widget-content widget-content-area br-6">
+    <div id="zero-config_wrapper" class="dataTables_wrapper container-fluid dt-bootstrap4">
+        <div class="dt--top-section">
+            <div class="row">
+                <div class="col-12 col-sm-6 d-flex justify-content-sm-start justify-content-center">
+                    <div class="dataTables_length"><label>Results : <select v-model="filter.pagination" @change="getResults"
+                                class="form-control">
+                                <option value="5">5</option>
+                                <option value="10">10</option>
+                                <option value="20">20</option>
+                                <option value="50">50</option>
+                            </select></label></div>
+                </div>
+                <div class="col-12 col-sm-6 d-flex justify-content-sm-end justify-content-center mt-sm-0 mt-3">
+                    <div class="dataTables_filter"><label><svg
+                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="feather feather-search">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                            </svg><input type="search" @keyup="getResults" v-model="filter.search" class="form-control" placeholder="Search..."></label></div>
+                </div>
+            </div>
+        </div>
+        <div class="table-responsive">
+            <table id="zero-config" class="table dt-table-hover dataTable" style="width: 100%;" role="grid">
+                <thead>
+                    <tr role="row">
+                        <th>Name</th>
                                                         <th>Shortname</th>
                                                         <th>Address</th>
                                                         <th>Phone</th>
                                                         <th>Email</th>
                                                         <th>Date</th>
                                                         <th class="no-content">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr v-for="branch in branches" :key="branch.name" role="row"> 
-                                                        <td class="sorting_1">{{ branch.name }}</td>
+                    </tr>
+                </thead>
+                <tbody>
+                    
+ <tr v-for="branch in laravelData.data" :key="branch.id">
+<td >{{ branch.name }}</td>
                                                         <td>{{ branch.shortname }}</td>
                                                         <td>{{ branch.address }}</td>
                                                         <td>{{ branch.phone }}</td>
@@ -89,24 +117,57 @@
                                                                 </div>
                                                             </div>
                                                         </td>
-                                                    </tr>
-                                                   
-                                                 
-                                                </tbody>
-                                                <tfoot>
-                                                    <tr>
-                                                       <th>Name</th>
+                                                    </tr> 
+
+                </tbody>
+                <tfoot>
+                    <tr>
+                      <th>Name</th>
                                                         <th>Shortname</th>
                                                         <th>Address</th>
                                                         <th>Phone</th>
                                                         <th>Email</th>
                                                         <th>Date</th>
                                                         <th class="no-content">Actions</th>
-                                                    </tr>
-                                                </tfoot>
-                                            </table>
-                                        </div>
-                                
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="dt--bottom-section d-sm-flex justify-content-sm-between text-center">
+            <div class="dt--pages-count  mb-sm-0 mb-3">
+                <div class="dataTables_info" id="zero-config_info" role="status" aria-live="polite">Showing page {{laravelData.current_page}} of {{laravelData.last_page}}
+                </div>
+            </div>
+            <div class="dt--pagination">
+                <div class="dataTables_paginate paging_simple_numbers" id="zero-config_paginate">
+                    <ul class="pagination">
+                        <pagination :data="laravelData" @pagination-change-page="getResults">
+                            <span slot="prev-nav"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-arrow-left">
+                                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                                    <polyline points="12 19 5 12 12 5"></polyline>
+                                </svg>
+                                </span>
+                            
+
+                                <span slot="next-nav"><svg
+                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" class="feather feather-arrow-right">
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                    <polyline points="12 5 19 12 12 19"></polyline>
+                                </svg></span>
+                        </pagination>
+                        
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
                                 </div>
                                                     </div>
                                                 </div>
@@ -235,8 +296,13 @@ export default {
 
   data: function () {
     return {
-      business:{
         
+        laravelData: {},
+       filter : {
+           pagination : 5,
+           search : '',
+       },
+      business:{
         newLogo: '',
       },
       newBranch : {
@@ -271,11 +337,13 @@ props :{
   
 created : function () {
     this.isLoading = true;
-    this.getFreshBranch();
     this.getBusiness()
-    this.isLoading = false;
 },
 
+mounted : function(){
+   this.getResults();
+   this.isLoading = false;
+},
 components: {
     'vue-dropify': VueDropify,
     VueLoadingButton,
@@ -285,13 +353,16 @@ components: {
   },
 
   methods: {
-
-       getFreshBranch(){
-        axios.get(route('getBranch'))
-        .then((response) => {
-            this.branches = response.data.branches;
-        });
+      notEmptyObject(someObject){
+      return Object.keys(someObject).length
     },
+      getResults(page =1) {
+
+                axios.get('api/branch?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search)
+                    .then( response => {
+                        this.laravelData = response.data;
+                    });
+            },
 
     getBusiness(){
         axios.get(route('organization.index'))
@@ -308,9 +379,13 @@ components: {
         .then((response) => {
                 this.$toast.success(response.data.success);
                 $('#editbranch').modal('hide');
+                this.$inertia.reload();
             })
             .catch(error => {
-                this.$toast.error(error.response.data.message, 'Error');
+                let errors = error.response.data.errors;
+                for (let field of Object.keys(errors)) {
+                    this.$toast.error(errors[field][0], 'error');
+                }
             });
     },
     editBranch(branch){
@@ -324,8 +399,7 @@ components: {
                 this.$toast.success(response.data.success);
                 this.newBranch= {};
                 $('#createModel').modal('hide');
-                // this.$inertia.visit('/setup#branch');
-                window.location.reload()
+                this.$inertia.reload();
             })
             .catch(error => {
                 this.isLoading = false;
@@ -345,6 +419,7 @@ components: {
             axios.post(route('organization.store'), this.business)
             .then((response) => {
                 this.isLoading = false;
+                this.$inertia.reload();
                 this.$toast.success(response.data.success);
             })
              .catch(error => {
@@ -378,13 +453,13 @@ this.$swal.fire({
       this.isLoading = true;
             axios.delete(route('branch.destroy',{'branch': branch_id.id}))
             .then((response) => {
+                this.getResults();
                 this.isLoading = false;
                this.$swal.fire(
                     'Deleted!',
                     'Your branch has been deleted.',
                     'success'
                     );
-                this.getFreshBranch();
             })
              .catch(error => {
                 this.isLoading = false;
@@ -402,7 +477,3 @@ this.$swal.fire({
 };
 
 </script>
-
-<style>
-@import '/dashboard/plugins/table/datatable/dt-global_style.css';
-</style>

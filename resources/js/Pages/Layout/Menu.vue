@@ -4,7 +4,7 @@
           <div class="theme-logo">
               <a href="index-2.html">
                   <img src="/dashboard/assets/img/logo.svg" class="navbar-logo" alt="logo">
-                  <span class="admin-logo">Test<span></span></span>
+                  <span class="admin-logo">{{ $page.props.appName }}<span></span></span>
               </a>
           </div>
 

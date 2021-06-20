@@ -19,6 +19,7 @@ class CreateOrganizationsTable extends Migration
             $table->string('logo')->nullable();
             $table->string('name');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

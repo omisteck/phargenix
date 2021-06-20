@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Branch;
+use App\Models\Staff;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -10,10 +11,34 @@ use Illuminate\Support\Facades\Auth;
 class BranchController extends Controller
 {
 
-    public function getBranch(){
-        $branches = auth()->user()->organization->branches;
-        return response()->json(['branches' => $branches ], 200 );
-    } 
+    public function search(Request $request){
+        
+        ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+        
+        $branches = auth()->user()->organization->branches();
+        if($request->has('search') && $request->search != ''){
+
+            $branches->where('name', 'LIKE', '%'.$request->search .'%')
+                    ->orWhere('shortname','LIKE', '%'.$request->search .'%')
+                    ->orWhere('phone','LIKE', '%'.$request->search .'%')
+                    ->orWhere('email','LIKE', '%'.$request->search .'%');
+        }
+        $branches = $branches->paginate($pagination);
+    	return response()->json($branches);
+    }
+
+    public function changeBranch(Request $request){
+        $this->validate($request, [
+            'id' => 'required|integer|exists:branches,id',
+            'name' => 'required|string|exists:branches,name',
+            'shortname' => 'required|string|exists:branches,shortname',
+        ]);
+
+            session(['active_branch' => $request->all() ]);
+            session()->save();
+
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -127,7 +152,7 @@ class BranchController extends Controller
     public function delete( Request $request)
     {
         $bran = Branch::where('name',$request->branch)->first();
-        DB::table('branch_user')->where('user_id', $request->user)->where('branch_id', $bran->id)->where('organization_id', auth()->user()->organization->id)->delete();
+        Staff::where('branch_id', $bran->id)->where('organization_id', auth()->user()->organization->id)->update(["branch_id" => NULL]);
         return response()->json(['success' => 'User successfully removed from a branch'], 200);
     }
 }

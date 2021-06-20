@@ -2,13 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Organization extends Model
 {
     use HasFactory;
-
+    use SoftDeletes;
     protected $guarded = [];
 
     protected $hidden = [
@@ -39,5 +40,20 @@ class Organization extends Model
     public function staffs()
     {
         return $this->hasMany(Staff::class);
+    }
+
+    public function categories()
+    {
+        return $this->hasMany(category::class);
+    }
+
+    public function suppliers()
+    {
+        return $this->hasMany(Supplier::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(product::class);
     }
 }

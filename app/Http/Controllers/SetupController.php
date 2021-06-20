@@ -19,7 +19,7 @@ class SetupController extends Controller
      */
     public function index()
     {
-        $organization = auth()->user()->organization;
+        $organization = optional(auth()->user()->organization);
         $branches = optional($organization)->branches;
 
         return Inertia::render("Setup/Index",[ 'business' => $organization, 'branches' => $branches ]);

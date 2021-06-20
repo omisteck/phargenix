@@ -19,7 +19,9 @@ class CreateSuppliersTable extends Migration
             $table->string('contact');
             $table->string('sales_rep')->nullable();
             $table->string('sales_rep_contact')->nullable();
+            $table->foreignId('organization_id')->references('id')->on('organizations')->onDelete('cascade');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

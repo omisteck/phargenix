@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\category;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use Spatie\Permission\Models\Role;
@@ -11,7 +12,7 @@ class TestController extends Controller
 {
     //
 
-    public function index(){
+    public function index(Request $request){
 
         // $role = Role::create(['name' => 'cashier']);
 
@@ -48,6 +49,7 @@ class TestController extends Controller
         //     'name' => 'Rasheed',
         //     'newClass' => 'SS1'
         // ]);
+
         
     }
 }

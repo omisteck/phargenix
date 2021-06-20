@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Branch extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $guarded = [];
 
@@ -28,5 +30,21 @@ class Branch extends Model
     public function staffs()
     {
         return $this->belongsToMany(User::class);
+    }
+
+    public function staff()
+    {
+        return $this->hasMany(Staff::class);
+    }
+
+    public function products()
+    {
+        return $this->hasMany(product::class);
+    }
+
+
+    public function sales()
+    {
+        return $this->hasMany(sales::class);
     }
 }

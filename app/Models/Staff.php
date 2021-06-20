@@ -9,5 +9,16 @@ class Staff extends Model
 {
     use HasFactory;
 
+    protected $table = 'branch_user';
+
+    public function user()
+    {
+        return $this->belongsTo(user::class);
+    }
+
+    public function branch()
+    {
+        return $this->belongsTo(Branch::class);
+    }
 
 }

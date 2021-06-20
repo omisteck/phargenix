@@ -19,6 +19,7 @@ class CreateStaffTable extends Migration
             $table->foreignId('branch_id')->references('id')->on('branches')->onDelete('cascade');
             $table->foreignId('organization_id')->references('id')->on('organizations')->onDelete('cascade');
             $table->timestamps();
+
         });
     }
 

@@ -12,6 +12,8 @@ import Toast from "vue-toastification";
 import "vue-toastification/dist/index.css";
 
 import { CoolSelectPlugin } from 'vue-cool-select'
+import Permissions from './mixins/Permissions';
+Vue.mixin(Permissions);
  
 // paste the line below only if you need "bootstrap" theme
 import 'vue-cool-select/dist/themes/bootstrap.css'
@@ -30,6 +32,8 @@ Vue.prototype.$route = route
 Vue.use(plugin)
 
 Vue.use(VueSweetalert2);
+
+Vue.component('pagination', require('laravel-vue-pagination'));
 
 const options = {
   // You can set your default options here

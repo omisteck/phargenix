@@ -8,6 +8,8 @@ use App\Models\Staff;
 use App\Models\Branch;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Spatie\Permission\Models\Role;
+use Illuminate\Support\Facades\Auth;
 
 class StaffController extends Controller
 {
@@ -24,25 +26,39 @@ class StaffController extends Controller
      */
     public function index()
     {
+        $branches = Auth::user()->organization->branches->pluck('name');
+        $roles = Role::all();
+        return Inertia::render("Staff/Index", ['branches' => $branches, 'roles' => $roles ]);
+    }
 
-        $organization = auth()->user()->organization;
-        $staffs = collect();
-        $staffs_record = DB::table('branch_user')->where("organization_id", $organization->id)->get();
-        $staffs_record;
 
-        foreach ($staffs_record as $staff) {
-            $staff_single = User::where('id',$staff->user_id)->with(['branch'])->get();
-            $staffs = $staffs->merge($staff_single);
+    public function search(Request $request){
+        
+        ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+        
+        $staffs = auth()->user()->organization->staffs()->with(['user', 'branch']);
+        if($request->has('search') && $request->search != ''){
+
+            $staffs->whereHas('user', function($q) use($request) {
+                $q->where('name', 'LIKE', '%'.$request->search .'%')
+                    ->orWhere('position','LIKE', '%'.$request->search .'%');
+             })->orWhereHas('branch', function( $query ) use ( $request ){
+                 $query->where('name', 'LIKE', '%'.$request->search .'%')
+                 ->orWhere('shortname','LIKE', '%'.$request->search .'%');
+        });
         }
-        
-        // $branches = auth()->user()->organization->branches;
-        // foreach($branches as $branch){
-        //     $staff = Staff::with("users")->where('branch_id', $branch->id)->get();
-            
-        //     $staffs = $staffs->merge($staff);
-        // }
-        
-        return Inertia::render("Staff/Index",[ 'staffs' => $staffs ]);
+        $staffs = $staffs->paginate($pagination);
+    	return response()->json($staffs);
+    }
+
+    public function changeShift(Request $request){
+            session(['shift' => $request->shift ]);
+            session()->save();
+    }
+
+    public function user_branches(User $user){
+        $branches = $user->branch->pluck('name');
+        return response()->json($branches);
     }
 
     /**
@@ -52,7 +68,7 @@ class StaffController extends Controller
      */
     public function create()
     {
-        //
+        
     }
 
     /**

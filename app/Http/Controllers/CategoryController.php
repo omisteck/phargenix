@@ -15,8 +15,21 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        $category = category::where('status', '!=', 'deactivated')->get();
-        return Inertia::render('Category/Index', ['categories' => $category]);
+        return Inertia::render('Category/Index');
+    }
+
+    public function search(Request $request){
+        
+        ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+
+        if($request->has('search') && $request->search != ''){
+            $data = category::where('name','LIKE', '%'.$request->search .'%')->orWhere('status','LIKE', '%'.$request->search .'%')->paginate($pagination);
+        }else{
+
+            $data = category::paginate($pagination);
+        }
+
+    	return response()->json($data);
     }
 
     /**
@@ -40,8 +53,11 @@ class CategoryController extends Controller
         $this->validate($request, [
             'name' => 'required|string|unique:categories,name'
         ]);
-
-        if(category::create($request->all())){
+        $data = [
+            'name' => $request->name,
+            'organization_id' => auth()->user()->organization->id
+        ];
+        if(category::create($data)){
             return response()->json(['success' => 'Category Successfully created'], 200);
         };
     }
@@ -77,7 +93,13 @@ class CategoryController extends Controller
      */
     public function update(Request $request, category $category)
     {
-        //
+        $this->validate($request, [
+            'name' => 'required|string|unique:categories,name'
+        ]);
+
+        if($category->update($request->only(['name']))){
+            return response()->json(['success' => 'Category Updated Successfully'], 200);
+        };
     }
 
     /**
