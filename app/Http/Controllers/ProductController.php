@@ -95,7 +95,8 @@ class ProductController extends Controller
      */
     public function show(product $product)
     {
-        //
+        $product->instore = Helpers::get_instore_value($product->id);
+        return response()->json([$product],200);
     }
 
     /**

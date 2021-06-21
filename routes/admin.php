@@ -11,6 +11,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\ReconcileController;
 use App\Http\Controllers\SalesReturnController;
 
 Route::resource('setup', SetupController::class);
@@ -57,6 +58,9 @@ Route::middleware(['isSetup'])->group(function () {
     Route::get('invoices/{sales}', [InvoiceController::class, 'show']);
     Route::get('export/invoices/pdf/{sales}', [InvoiceController::class, 'export_pdf'])->name('export.pdf');
     Route::post('export/invoices/mail', [InvoiceController::class, 'mail_invoice'])->name('mail.invoice');    
+
+    Route::resource('reconcile', ReconcileController::class);
+    Route::get('api/reconcile', [ReconcileController::class, 'search'])->name('reconcile.search');
     
 });
 

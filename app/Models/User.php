@@ -86,6 +86,11 @@ class User extends Authenticatable
         return $this->hasMany(Sales_Return::class);
     }
 
+    public function reconciles()
+    {
+        return $this->hasMany(Reconcile::class);
+    }
+
 
     public function getAllPermissionsAttribute() {
         $permissions = [];

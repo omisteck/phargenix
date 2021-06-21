@@ -17,7 +17,7 @@ class Helpers{
     }
 
     static public function get_instore_value($product){
-        return 20;
+        return 18;
     }
 
     static protected function generateNumericKey()

@@ -118,7 +118,7 @@
 
 <div class="modal fade" id="createModel" tabindex="-1" role="dialog" aria-labelledby="createModelLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-<form  method="POST" @submit.prevent="createStaff"> 
+<form > 
         <div class="modal-content">
             
             <div class="modal-header">
