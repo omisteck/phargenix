@@ -7587,27 +7587,6 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 
 
 
@@ -7616,18 +7595,24 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony default export */ const __WEBPACK_DEFAULT_EXPORT__ = ({
   // Using the shorthand
   //   layout: Layout,
-  props: ['products'],
+  props: ['products', 'branchies', 'all_branchies'],
   data: function data() {
     return {
       laravelData: {},
       filter: {
         pagination: 5,
-        search: ''
+        search: '',
+        to_branch: '',
+        date: '',
+        to_date: ''
       },
       isLoading: false,
-      reconcile: {},
-      data: {},
-      edit: {}
+      transfer: {
+        to: {},
+        from: {}
+      },
+      products2: [],
+      display: 'd-none'
     };
   },
   components: {
@@ -7650,25 +7635,27 @@ __webpack_require__.r(__webpack_exports__);
     this.isLoading = false;
   },
   methods: {
-    editRecon: function editRecon(recon) {
+    loadProduct2: function loadProduct2() {
       var _this = this;
 
-      this.edit = recon;
-      axios__WEBPACK_IMPORTED_MODULE_4___default().get(route('products.show', JSON.parse(recon.data).id)).then(function (response) {
-        _this.data = response.data[0];
-        $('#edit').modal('show');
+      this.isLoading = true;
+      this.display = 'd-block';
+      axios__WEBPACK_IMPORTED_MODULE_4___default().get(route('branchProduct', this.transfer.branch)).then(function (response) {
+        _this.products2 = response.data.products;
+        _this.isLoading = false;
       });
     },
-    reconcileSave: function reconcileSave() {
+    Save: function Save() {
       var _this2 = this;
 
-      axios__WEBPACK_IMPORTED_MODULE_4___default().post(route('reconcile.store'), this.reconcile).then(function (response) {
-        _this2.reconcile = {};
+      axios__WEBPACK_IMPORTED_MODULE_4___default().post(route('transfer.store'), this.transfer).then(function (response) {
+        _this2.transfer = {};
 
         _this2.getResults();
 
         _this2.isLoading = false;
         $('#createModel').modal('hide');
+        _this2.display = 'd-none';
 
         _this2.$toast.success(response.data.success);
       })["catch"](function (error) {
@@ -7682,7 +7669,11 @@ __webpack_require__.r(__webpack_exports__);
         }
       });
     },
-    reconcileUpdate: function reconcileUpdate() {
+    editTransfer: function editTransfer(transfer) {
+      this.edit = transfer;
+      $('#edit').modal('show');
+    },
+    Update: function Update() {
       var _this3 = this;
 
       axios__WEBPACK_IMPORTED_MODULE_4___default().put(route('reconcile.update', this.edit.id), {
@@ -7712,11 +7703,11 @@ __webpack_require__.r(__webpack_exports__);
       var _this4 = this;
 
       var page = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : 1;
-      axios__WEBPACK_IMPORTED_MODULE_4___default().get('/api/reconcile?page=' + page + "&pagination=" + this.filter.pagination + "&search=" + this.filter.search).then(function (response) {
+      axios__WEBPACK_IMPORTED_MODULE_4___default().get('/api/transfer?page=' + page + "&pagination=" + this.filter.pagination + "&search=" + this.filter.search + "&to_branch=" + this.filter.to_branch + "&date=" + this.filter.date).then(function (response) {
         _this4.laravelData = response.data;
       });
     },
-    delItem: function delItem(recon) {
+    delItem: function delItem(transfer) {
       var _this5 = this;
 
       this.$swal.fire({
@@ -7732,14 +7723,14 @@ __webpack_require__.r(__webpack_exports__);
       }).then(function (result) {
         if (result.isConfirmed) {
           _this5.isLoading = true;
-          axios__WEBPACK_IMPORTED_MODULE_4___default().delete(route('reconcile.destroy', {
-            'reconcile': recon.id
+          axios__WEBPACK_IMPORTED_MODULE_4___default().delete(route('transfer.destroy', {
+            'transfer': transfer.id
           })).then(function (response) {
             _this5.getResults();
 
             _this5.isLoading = false;
 
-            _this5.$swal.fire('Deleted!', 'Reconcile deleted succesfully.', 'success');
+            _this5.$swal.fire('Deleted!', 'Transfer deleted succesfully.', 'success');
           })["catch"](function (error) {
             _this5.isLoading = false;
             var errors = error.response.data.errors;
@@ -74068,9 +74059,123 @@ var render = function() {
                 "data-target": "#createModel"
               }
             },
-            [_vm._v("Product Reconcile")]
+            [_vm._v("Product Transfer")]
           )
         ]),
+        _vm._v(" "),
+        _c(
+          "div",
+          {
+            staticClass: "col-xl-10 col-lg-10 col-md-10 col-12 layout-spacing"
+          },
+          [
+            _c("div", { staticClass: "widget-content-area br-4" }, [
+              _c("div", { staticClass: "widget-one p-3" }, [
+                _c("div", { staticClass: "row" }, [
+                  _c("div", { staticClass: "col-3" }, [
+                    _c("h4", [_vm._v("Search filter:")])
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-3" }, [
+                    _c("input", {
+                      directives: [
+                        {
+                          name: "model",
+                          rawName: "v-model",
+                          value: _vm.filter.date,
+                          expression: "filter.date"
+                        }
+                      ],
+                      staticClass: "form-control",
+                      attrs: {
+                        type: "date",
+                        placeholder: "Date",
+                        r: "",
+                        required: ""
+                      },
+                      domProps: { value: _vm.filter.date },
+                      on: {
+                        change: _vm.getResults,
+                        input: function($event) {
+                          if ($event.target.composing) {
+                            return
+                          }
+                          _vm.$set(_vm.filter, "date", $event.target.value)
+                        }
+                      }
+                    })
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-4" }, [
+                    _c(
+                      "select",
+                      {
+                        directives: [
+                          {
+                            name: "model",
+                            rawName: "v-model",
+                            value: _vm.filter.to_branch,
+                            expression: "filter.to_branch"
+                          }
+                        ],
+                        staticClass: "form-control d-inline-block",
+                        attrs: { required: "" },
+                        on: {
+                          change: [
+                            function($event) {
+                              var $$selectedVal = Array.prototype.filter
+                                .call($event.target.options, function(o) {
+                                  return o.selected
+                                })
+                                .map(function(o) {
+                                  var val = "_value" in o ? o._value : o.value
+                                  return val
+                                })
+                              _vm.$set(
+                                _vm.filter,
+                                "to_branch",
+                                $event.target.multiple
+                                  ? $$selectedVal
+                                  : $$selectedVal[0]
+                              )
+                            },
+                            _vm.getResults
+                          ]
+                        }
+                      },
+                      [
+                        _c(
+                          "option",
+                          { attrs: { value: "", disabled: "", selected: "" } },
+                          [_vm._v("Receivie Branch")]
+                        ),
+                        _vm._v(" "),
+                        _vm._l(_vm.all_branchies, function(single_branch) {
+                          return _c(
+                            "option",
+                            {
+                              key: single_branch.id,
+                              domProps: { value: single_branch.id }
+                            },
+                            [_vm._v(_vm._s(single_branch.shortname))]
+                          )
+                        })
+                      ],
+                      2
+                    )
+                  ]),
+                  _vm._v(" "),
+                  _c("div", { staticClass: "col-2" }, [
+                    _c("input", {
+                      staticClass: "btn btn-primary",
+                      attrs: { type: "submit", value: "Export as PDF" }
+                    })
+                  ])
+                ])
+              ])
+            ])
+          ]
+        ),
         _vm._v(" "),
         _c(
           "div",
@@ -74263,11 +74368,11 @@ var render = function() {
                               _vm._v(" "),
                               _c("th", [_vm._v("Branch")]),
                               _vm._v(" "),
+                              _c("th", [_vm._v("To Product")]),
+                              _vm._v(" "),
+                              _c("th", [_vm._v("To Branch")]),
+                              _vm._v(" "),
                               _c("th", [_vm._v("Qty")]),
-                              _vm._v(" "),
-                              _c("th", [_vm._v("Remark")]),
-                              _vm._v(" "),
-                              _c("th", [_vm._v("Type")]),
                               _vm._v(" "),
                               _c("th", [_vm._v("By")]),
                               _vm._v(" "),
@@ -74281,33 +74386,57 @@ var render = function() {
                           _vm._v(" "),
                           _c(
                             "tbody",
-                            _vm._l(_vm.laravelData.data, function(recon) {
-                              return _c("tr", { key: recon.id }, [
-                                _c("td", [
-                                  _vm._v(_vm._s(JSON.parse(recon.data).name))
-                                ]),
-                                _vm._v(" "),
-                                recon.branch
+                            _vm._l(_vm.laravelData.data, function(transfer) {
+                              return _c("tr", { key: transfer.id }, [
+                                transfer.from_product
                                   ? _c("td", [
-                                      _vm._v(_vm._s(recon.branch.shortname))
+                                      _vm._v(
+                                        _vm._s(
+                                          JSON.parse(transfer.from_product).name
+                                        )
+                                      )
+                                    ])
+                                  : _c("td", [_vm._v("No Product")]),
+                                _vm._v(" "),
+                                transfer.from_branches
+                                  ? _c("td", [
+                                      _vm._v(
+                                        _vm._s(transfer.from_branches.shortname)
+                                      )
                                     ])
                                   : _c("td", [_vm._v("No branch")]),
                                 _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(recon.qty))]),
+                                transfer.to_product
+                                  ? _c("td", [
+                                      _vm._v(
+                                        _vm._s(
+                                          JSON.parse(transfer.to_product).name
+                                        )
+                                      )
+                                    ])
+                                  : _c("td", [_vm._v("No Product")]),
                                 _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(recon.remark))]),
+                                transfer.to_branches
+                                  ? _c("td", [
+                                      _vm._v(
+                                        _vm._s(transfer.to_branches.shortname)
+                                      )
+                                    ])
+                                  : _c("td", [_vm._v("No branch")]),
                                 _vm._v(" "),
-                                _c("td", [_vm._v(_vm._s(recon.type))]),
+                                _c("td", [_vm._v(_vm._s(transfer.qty))]),
                                 _vm._v(" "),
-                                recon.user
-                                  ? _c("td", [_vm._v(_vm._s(recon.user.name))])
+                                transfer.user
+                                  ? _c("td", [
+                                      _vm._v(_vm._s(transfer.user.name))
+                                    ])
                                   : _c("td", [_vm._v("No user")]),
                                 _vm._v(" "),
                                 _c("td", [
                                   _vm._v(
                                     _vm._s(
                                       _vm._f("moment")(
-                                        recon.created_at,
+                                        transfer.created_at,
                                         "ddd, MMM Do YYYY"
                                       )
                                     )
@@ -74321,7 +74450,7 @@ var render = function() {
                                       attrs: { href: "#" },
                                       on: {
                                         click: function($event) {
-                                          return _vm.delItem(recon)
+                                          return _vm.delItem(transfer)
                                         }
                                       }
                                     },
@@ -74372,45 +74501,6 @@ var render = function() {
                                         ]
                                       )
                                     ]
-                                  ),
-                                  _vm._v(" "),
-                                  _c(
-                                    "a",
-                                    {
-                                      attrs: { href: "#" },
-                                      on: {
-                                        click: function($event) {
-                                          return _vm.editRecon(recon)
-                                        }
-                                      }
-                                    },
-                                    [
-                                      _c(
-                                        "svg",
-                                        {
-                                          staticClass: "feather feather-edit-2",
-                                          attrs: {
-                                            xmlns: "http://www.w3.org/2000/svg",
-                                            width: "24",
-                                            height: "24",
-                                            viewBox: "0 0 24 24",
-                                            fill: "none",
-                                            stroke: "currentColor",
-                                            "stroke-width": "2",
-                                            "stroke-linecap": "round",
-                                            "stroke-linejoin": "round"
-                                          }
-                                        },
-                                        [
-                                          _c("path", {
-                                            attrs: {
-                                              d:
-                                                "M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"
-                                            }
-                                          })
-                                        ]
-                                      )
-                                    ]
                                   )
                                 ])
                               ])
@@ -74424,11 +74514,11 @@ var render = function() {
                               _vm._v(" "),
                               _c("th", [_vm._v("Branch")]),
                               _vm._v(" "),
+                              _c("th", [_vm._v("To Product")]),
+                              _vm._v(" "),
+                              _c("th", [_vm._v("To Branch")]),
+                              _vm._v(" "),
                               _c("th", [_vm._v("Qty")]),
-                              _vm._v(" "),
-                              _c("th", [_vm._v("Remark")]),
-                              _vm._v(" "),
-                              _c("th", [_vm._v("Type")]),
                               _vm._v(" "),
                               _c("th", [_vm._v("By")]),
                               _vm._v(" "),
@@ -74630,7 +74720,7 @@ var render = function() {
                     on: {
                       submit: function($event) {
                         $event.preventDefault()
-                        return _vm.reconcileSave($event)
+                        return _vm.Save($event)
                       }
                     }
                   },
@@ -74643,327 +74733,7 @@ var render = function() {
                             staticClass: "modal-title",
                             attrs: { id: "createModelLabel" }
                           },
-                          [_vm._v("Reconcile")]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "button",
-                          {
-                            staticClass: "close",
-                            attrs: {
-                              type: "button",
-                              "data-dismiss": "modal",
-                              "aria-label": "Close"
-                            }
-                          },
-                          [
-                            _c(
-                              "svg",
-                              {
-                                staticClass: "feather feather-x",
-                                attrs: {
-                                  "aria-hidden": "true",
-                                  xmlns: "http://www.w3.org/2000/svg",
-                                  width: "24",
-                                  height: "24",
-                                  viewBox: "0 0 24 24",
-                                  fill: "none",
-                                  stroke: "currentColor",
-                                  "stroke-width": "2",
-                                  "stroke-linecap": "round",
-                                  "stroke-linejoin": "round"
-                                }
-                              },
-                              [
-                                _c("line", {
-                                  attrs: {
-                                    x1: "18",
-                                    y1: "6",
-                                    x2: "6",
-                                    y2: "18"
-                                  }
-                                }),
-                                _c("line", {
-                                  attrs: {
-                                    x1: "6",
-                                    y1: "6",
-                                    x2: "18",
-                                    y2: "18"
-                                  }
-                                })
-                              ]
-                            )
-                          ]
-                        )
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "modal-body" }, [
-                        _c(
-                          "div",
-                          { staticClass: "form-group mb-4" },
-                          [
-                            _c("label", { attrs: { for: "inputAddress" } }, [
-                              _vm._v("Select Product")
-                            ]),
-                            _c("br"),
-                            _vm._v(" "),
-                            _c("cool-select", {
-                              attrs: {
-                                items: _vm.products,
-                                placeholder: _vm.reconcile.item
-                                  ? ""
-                                  : "Select product",
-                                "item-text": "name"
-                              },
-                              model: {
-                                value: _vm.reconcile.item,
-                                callback: function($$v) {
-                                  _vm.$set(_vm.reconcile, "item", $$v)
-                                },
-                                expression: "reconcile.item"
-                              }
-                            })
-                          ],
-                          1
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "div",
-                          { staticClass: "form-row mb-2 text-center" },
-                          [
-                            _c("div", { staticClass: "col-4" }, [
-                              _c("h4", [_vm._v("Instore")]),
-                              _vm._v(" "),
-                              _vm.reconcile.item
-                                ? _c("p", [
-                                    _vm._v(_vm._s(_vm.reconcile.item.instore))
-                                  ])
-                                : _vm._e()
-                            ]),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "col-4" }, [
-                              _c("h4", [_vm._v("Selling Price")]),
-                              _vm._v(" "),
-                              _vm.reconcile.item
-                                ? _c("p", [
-                                    _vm._v(
-                                      _vm._s(_vm.reconcile.item.selling_price)
-                                    )
-                                  ])
-                                : _vm._e()
-                            ]),
-                            _vm._v(" "),
-                            _c("div", { staticClass: "col-4" }, [
-                              _c("h4", [_vm._v("Cost Price")]),
-                              _vm._v(" "),
-                              _vm.reconcile.item
-                                ? _c("p", [
-                                    _vm._v(
-                                      _vm._s(_vm.reconcile.item.cost_price)
-                                    )
-                                  ])
-                                : _vm._e()
-                            ])
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "form-row mb-2" }, [
-                          _c("div", { staticClass: "form-group col-md-6" }, [
-                            _c("label", { attrs: { for: "qty" } }, [
-                              _vm._v("Qty")
-                            ]),
-                            _vm._v(" "),
-                            _c("input", {
-                              directives: [
-                                {
-                                  name: "model",
-                                  rawName: "v-model",
-                                  value: _vm.reconcile.qty,
-                                  expression: "reconcile.qty"
-                                }
-                              ],
-                              staticClass: "form-control text-primary",
-                              attrs: {
-                                type: "number",
-                                min: "1",
-                                required: "",
-                                required: "",
-                                id: "instore"
-                              },
-                              domProps: { value: _vm.reconcile.qty },
-                              on: {
-                                input: function($event) {
-                                  if ($event.target.composing) {
-                                    return
-                                  }
-                                  _vm.$set(
-                                    _vm.reconcile,
-                                    "qty",
-                                    $event.target.value
-                                  )
-                                }
-                              }
-                            })
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "form-group col-md-6" }, [
-                            _c("label", { attrs: { for: "type" } }, [
-                              _vm._v("Type")
-                            ]),
-                            _vm._v(" "),
-                            _c(
-                              "select",
-                              {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: _vm.reconcile.type,
-                                    expression: "reconcile.type"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: { required: "", id: "type" },
-                                on: {
-                                  change: function($event) {
-                                    var $$selectedVal = Array.prototype.filter
-                                      .call($event.target.options, function(o) {
-                                        return o.selected
-                                      })
-                                      .map(function(o) {
-                                        var val =
-                                          "_value" in o ? o._value : o.value
-                                        return val
-                                      })
-                                    _vm.$set(
-                                      _vm.reconcile,
-                                      "type",
-                                      $event.target.multiple
-                                        ? $$selectedVal
-                                        : $$selectedVal[0]
-                                    )
-                                  }
-                                }
-                              },
-                              [
-                                _c("option", { attrs: { value: "in" } }, [
-                                  _vm._v("In")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "out" } }, [
-                                  _vm._v("Out")
-                                ])
-                              ]
-                            )
-                          ])
-                        ]),
-                        _vm._v(" "),
-                        _c("div", { staticClass: "form-group mb-4" }, [
-                          _c("label", { attrs: { for: "remark" } }, [
-                            _vm._v("Remark")
-                          ]),
-                          _vm._v(" "),
-                          _c("textarea", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.reconcile.remark,
-                                expression: "reconcile.remark"
-                              }
-                            ],
-                            staticClass: "form-control",
-                            attrs: {
-                              required: "",
-                              id: "remark",
-                              rows: "3",
-                              maxlength: "50"
-                            },
-                            domProps: { value: _vm.reconcile.remark },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(
-                                  _vm.reconcile,
-                                  "remark",
-                                  $event.target.value
-                                )
-                              }
-                            }
-                          })
-                        ])
-                      ]),
-                      _vm._v(" "),
-                      _c("div", { staticClass: "modal-footer" }, [
-                        _c(
-                          "button",
-                          {
-                            staticClass: "btn btn-danger",
-                            attrs: { "data-dismiss": "modal" }
-                          },
-                          [
-                            _c("i", { staticClass: "flaticon-cancel-12" }),
-                            _vm._v(" Discard")
-                          ]
-                        ),
-                        _vm._v(" "),
-                        _c(
-                          "button",
-                          {
-                            staticClass: "btn btn-primary",
-                            attrs: { type: "submit" }
-                          },
-                          [_vm._v("Reconcile")]
-                        )
-                      ])
-                    ])
-                  ]
-                )
-              ]
-            )
-          ]
-        ),
-        _vm._v(" "),
-        _c(
-          "div",
-          {
-            staticClass: "modal fade",
-            attrs: {
-              id: "edit",
-              tabindex: "-1",
-              role: "dialog",
-              "aria-labelledby": "editLabel",
-              "aria-hidden": "true"
-            }
-          },
-          [
-            _c(
-              "div",
-              { staticClass: "modal-dialog", attrs: { role: "document" } },
-              [
-                _c(
-                  "form",
-                  {
-                    attrs: { method: "POST" },
-                    on: {
-                      submit: function($event) {
-                        $event.preventDefault()
-                        return _vm.reconcileUpdate($event)
-                      }
-                    }
-                  },
-                  [
-                    _c("div", { staticClass: "modal-content" }, [
-                      _c("div", { staticClass: "modal-header" }, [
-                        _c(
-                          "h5",
-                          {
-                            staticClass: "modal-title",
-                            attrs: { id: "editLabel" }
-                          },
-                          [_vm._v("Edit Reconcile")]
+                          [_vm._v("Transfer")]
                         ),
                         _vm._v(" "),
                         _c(
@@ -75020,24 +74790,70 @@ var render = function() {
                       _c("div", { staticClass: "modal-body" }, [
                         _c("div", { staticClass: "form-group mb-4" }, [
                           _c("label", { attrs: { for: "inputAddress" } }, [
-                            _vm._v("Select Product")
+                            _vm._v("Transfer Date")
                           ]),
                           _c("br"),
                           _vm._v(" "),
                           _c("input", {
-                            staticClass: "form-control text-primary",
+                            directives: [
+                              {
+                                name: "model",
+                                rawName: "v-model",
+                                value: _vm.transfer.date,
+                                expression: "transfer.date"
+                              }
+                            ],
+                            staticClass: "form-control",
                             attrs: {
-                              type: "text",
-                              readonly: "",
-                              id: "inputAddress"
+                              type: "datetime-local",
+                              placeholder: "Select Date..",
+                              required: ""
                             },
-                            domProps: {
-                              value: _vm.edit.data
-                                ? JSON.parse(_vm.edit.data).name
-                                : ""
+                            domProps: { value: _vm.transfer.date },
+                            on: {
+                              input: function($event) {
+                                if ($event.target.composing) {
+                                  return
+                                }
+                                _vm.$set(
+                                  _vm.transfer,
+                                  "date",
+                                  $event.target.value
+                                )
+                              }
                             }
                           })
                         ]),
+                        _vm._v(" "),
+                        _c(
+                          "div",
+                          { staticClass: "form-group mb-4" },
+                          [
+                            _c("label", { attrs: { for: "inputAddress" } }, [
+                              _vm._v("Select Product")
+                            ]),
+                            _c("br"),
+                            _vm._v(" "),
+                            _c("cool-select", {
+                              attrs: {
+                                items: _vm.products,
+                                placeholder: _vm.transfer.from
+                                  ? ""
+                                  : "Select product",
+                                "item-text": "name",
+                                required: true
+                              },
+                              model: {
+                                value: _vm.transfer.from,
+                                callback: function($$v) {
+                                  _vm.$set(_vm.transfer, "from", $$v)
+                                },
+                                expression: "transfer.from"
+                              }
+                            })
+                          ],
+                          1
+                        ),
                         _vm._v(" "),
                         _c(
                           "div",
@@ -75046,17 +74862,21 @@ var render = function() {
                             _c("div", { staticClass: "col-4" }, [
                               _c("h4", [_vm._v("Instore")]),
                               _vm._v(" "),
-                              _vm.edit.data
-                                ? _c("p", [_vm._v(_vm._s(_vm.data.instore))])
+                              _vm.transfer.from
+                                ? _c("p", [
+                                    _vm._v(_vm._s(_vm.transfer.from.instore))
+                                  ])
                                 : _vm._e()
                             ]),
                             _vm._v(" "),
                             _c("div", { staticClass: "col-4" }, [
                               _c("h4", [_vm._v("Selling Price")]),
                               _vm._v(" "),
-                              _vm.edit.data
+                              _vm.transfer.from
                                 ? _c("p", [
-                                    _vm._v(_vm._s(_vm.data.selling_price))
+                                    _vm._v(
+                                      _vm._s(_vm.transfer.from.selling_price)
+                                    )
                                   ])
                                 : _vm._e()
                             ]),
@@ -75064,67 +74884,36 @@ var render = function() {
                             _c("div", { staticClass: "col-4" }, [
                               _c("h4", [_vm._v("Cost Price")]),
                               _vm._v(" "),
-                              _vm.edit.data
-                                ? _c("p", [_vm._v(_vm._s(_vm.data.cost_price))])
+                              _vm.transfer.from
+                                ? _c("p", [
+                                    _vm._v(_vm._s(_vm.transfer.from.cost_price))
+                                  ])
                                 : _vm._e()
                             ])
                           ]
                         ),
                         _vm._v(" "),
-                        _c("div", { staticClass: "form-row mb-2" }, [
-                          _c("div", { staticClass: "form-group col-md-6" }, [
-                            _c("label", { attrs: { for: "qty" } }, [
-                              _vm._v("Qty")
-                            ]),
-                            _vm._v(" "),
-                            _c("input", {
+                        _c("div", { staticClass: "form-group col-md-12 p-0" }, [
+                          _c("label", { attrs: { for: "address" } }, [
+                            _vm._v("To Branch")
+                          ]),
+                          _vm._v(" "),
+                          _c(
+                            "select",
+                            {
                               directives: [
                                 {
                                   name: "model",
                                   rawName: "v-model",
-                                  value: _vm.edit.qty,
-                                  expression: "edit.qty"
+                                  value: _vm.transfer.branch,
+                                  expression: "transfer.branch"
                                 }
                               ],
-                              staticClass: "form-control text-primary",
-                              attrs: {
-                                type: "number",
-                                min: "1",
-                                required: "",
-                                id: "instore"
-                              },
-                              domProps: { value: _vm.edit.qty },
+                              staticClass: "form-control d-inline-block",
+                              attrs: { required: "" },
                               on: {
-                                input: function($event) {
-                                  if ($event.target.composing) {
-                                    return
-                                  }
-                                  _vm.$set(_vm.edit, "qty", $event.target.value)
-                                }
-                              }
-                            })
-                          ]),
-                          _vm._v(" "),
-                          _c("div", { staticClass: "form-group col-md-6" }, [
-                            _c("label", { attrs: { for: "type" } }, [
-                              _vm._v("Type")
-                            ]),
-                            _vm._v(" "),
-                            _c(
-                              "select",
-                              {
-                                directives: [
-                                  {
-                                    name: "model",
-                                    rawName: "v-model",
-                                    value: _vm.edit.type,
-                                    expression: "edit.type"
-                                  }
-                                ],
-                                staticClass: "form-control",
-                                attrs: { required: "", id: "type" },
-                                on: {
-                                  change: function($event) {
+                                change: [
+                                  function($event) {
                                     var $$selectedVal = Array.prototype.filter
                                       .call($event.target.options, function(o) {
                                         return o.selected
@@ -75135,64 +74924,127 @@ var render = function() {
                                         return val
                                       })
                                     _vm.$set(
-                                      _vm.edit,
-                                      "type",
+                                      _vm.transfer,
+                                      "branch",
                                       $event.target.multiple
                                         ? $$selectedVal
                                         : $$selectedVal[0]
                                     )
+                                  },
+                                  function($event) {
+                                    return _vm.loadProduct2()
                                   }
-                                }
-                              },
-                              [
-                                _c("option", { attrs: { value: "in" } }, [
-                                  _vm._v("In")
-                                ]),
-                                _vm._v(" "),
-                                _c("option", { attrs: { value: "out" } }, [
-                                  _vm._v("Out")
-                                ])
-                              ]
-                            )
-                          ])
+                                ]
+                              }
+                            },
+                            [
+                              _c("option", { attrs: { disabled: "" } }, [
+                                _vm._v("Select Branch")
+                              ]),
+                              _vm._v(" "),
+                              _vm._l(_vm.branchies, function(branch) {
+                                return _c(
+                                  "option",
+                                  {
+                                    key: branch.id,
+                                    domProps: { value: branch.id }
+                                  },
+                                  [_vm._v(_vm._s(branch.name))]
+                                )
+                              })
+                            ],
+                            2
+                          )
                         ]),
                         _vm._v(" "),
-                        _c("div", { staticClass: "form-group mb-4" }, [
-                          _c("label", { attrs: { for: "remark" } }, [
-                            _vm._v("Remark")
-                          ]),
-                          _vm._v(" "),
-                          _c("textarea", {
-                            directives: [
-                              {
-                                name: "model",
-                                rawName: "v-model",
-                                value: _vm.edit.remark,
-                                expression: "edit.remark"
+                        _c(
+                          "div",
+                          { class: _vm.display },
+                          [
+                            _c("vue-element-loading", {
+                              attrs: {
+                                active: _vm.isLoading,
+                                spinner: "bar-fade-scale",
+                                color: "#009688"
                               }
-                            ],
-                            staticClass: "form-control",
-                            attrs: {
-                              required: "",
-                              id: "remark",
-                              rows: "3",
-                              maxlength: "50"
-                            },
-                            domProps: { value: _vm.edit.remark },
-                            on: {
-                              input: function($event) {
-                                if ($event.target.composing) {
-                                  return
-                                }
-                                _vm.$set(
-                                  _vm.edit,
-                                  "remark",
-                                  $event.target.value
-                                )
-                              }
-                            }
-                          })
-                        ])
+                            }),
+                            _vm._v(" "),
+                            _c(
+                              "div",
+                              { staticClass: "form-group mb-4" },
+                              [
+                                _c(
+                                  "label",
+                                  { attrs: { for: "inputAddress" } },
+                                  [_vm._v("Select Product")]
+                                ),
+                                _c("br"),
+                                _vm._v(" "),
+                                _c("cool-select", {
+                                  attrs: {
+                                    items: _vm.products2,
+                                    placeholder: _vm.transfer.to
+                                      ? ""
+                                      : "Select product",
+                                    "item-text": "name"
+                                  },
+                                  model: {
+                                    value: _vm.transfer.to,
+                                    callback: function($$v) {
+                                      _vm.$set(_vm.transfer, "to", $$v)
+                                    },
+                                    expression: "transfer.to"
+                                  }
+                                })
+                              ],
+                              1
+                            ),
+                            _vm._v(" "),
+                            _c("div", { staticClass: "form-row mb-2" }, [
+                              _c(
+                                "div",
+                                { staticClass: "form-group col-md-12" },
+                                [
+                                  _c("label", { attrs: { for: "qty" } }, [
+                                    _vm._v("Qty")
+                                  ]),
+                                  _vm._v(" "),
+                                  _c("input", {
+                                    directives: [
+                                      {
+                                        name: "model",
+                                        rawName: "v-model",
+                                        value: _vm.transfer.qty,
+                                        expression: "transfer.qty"
+                                      }
+                                    ],
+                                    staticClass: "form-control text-primary",
+                                    attrs: {
+                                      type: "number",
+                                      min: "1",
+                                      required: "",
+                                      id: "instore"
+                                    },
+                                    domProps: { value: _vm.transfer.qty },
+                                    on: {
+                                      input: function($event) {
+                                        if ($event.target.composing) {
+                                          return
+                                        }
+                                        _vm.$set(
+                                          _vm.transfer,
+                                          "qty",
+                                          $event.target.value
+                                        )
+                                      }
+                                    }
+                                  })
+                                ]
+                              )
+                            ])
+                          ],
+                          1
+                        )
                       ]),
                       _vm._v(" "),
                       _c("div", { staticClass: "modal-footer" }, [
@@ -75214,7 +75066,7 @@ var render = function() {
                             staticClass: "btn btn-primary",
                             attrs: { type: "submit" }
                           },
-                          [_vm._v("Update")]
+                          [_vm._v("Transfer")]
                         )
                       ])
                     ])

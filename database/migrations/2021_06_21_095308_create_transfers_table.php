@@ -15,6 +15,12 @@ class CreateTransfersTable extends Migration
     {
         Schema::create('transfers', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('branch_from')->references('id')->on('branches')->onDelete('cascade');
+            $table->json('from_product');
+            $table->foreignId('branch_to')->references('id')->on('branches')->onDelete('cascade');
+            $table->json('to_product');
+            $table->integer('qty');
+            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });
     }

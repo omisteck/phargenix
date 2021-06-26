@@ -10,9 +10,10 @@ use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\SupplierController;
-use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\TransferController;
 use App\Http\Controllers\ReconcileController;
 use App\Http\Controllers\SalesReturnController;
+use App\Http\Controllers\OrganizationController;
 
 Route::resource('setup', SetupController::class);
 
@@ -43,6 +44,7 @@ Route::middleware(['isSetup'])->group(function () {
 
     Route::resource('products', ProductController::class);
     Route::get('api/products', [ProductController::class, 'search'])->name('categories.search');
+    Route::get('api/branch/products/{branch}', [ProductController::class, 'branchProduct'])->name('branchProduct');
 
     Route::resource('sales', SalesController::class);
     Route::get('api/invoice', [SalesController::class, 'invoice_number']);
@@ -61,6 +63,9 @@ Route::middleware(['isSetup'])->group(function () {
 
     Route::resource('reconcile', ReconcileController::class);
     Route::get('api/reconcile', [ReconcileController::class, 'search'])->name('reconcile.search');
+
+    Route::resource('transfer', TransferController::class);
+    Route::get('api/transfer', [TransferController::class, 'search'])->name('transfer.search');
     
 });
 

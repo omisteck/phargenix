@@ -1,11 +1,28 @@
 <template>
 <layout :page_title="'Transfers'">
+    
  <div class="row layout-top-spacing" id="cancel-row">
      <div class="col-lg-12">
-        <a href="#" class="btn btn-success mb-3 ml-3"  data-toggle="modal" data-target="#createModel" >Product Reconcile</a>
+        <a href="#" class="btn btn-success mb-3 ml-3"  data-toggle="modal" data-target="#createModel" >Product Transfer</a>
      </div>
-    
 
+
+<div class="col-xl-10 col-lg-10 col-md-10 col-12 layout-spacing">
+                                        <div class="widget-content-area br-4">
+                                            <div class="widget-one p-3">
+                                                <div class="row">
+                                                    <div class="col-3"><h4>Search filter:</h4></div>
+                                                    <div class="col-3"><input type="date" class="form-control" placeholder="Date" v-model="filter.date" r required @change="getResults" /></div>
+                                                    <div class="col-4">
+                                                        <select class="form-control d-inline-block" v-model="filter.to_branch" required @change="getResults">
+                                                            <option value="" disabled selected>Receivie Branch</option>
+                                                            <option v-for="single_branch in all_branchies" :key="single_branch.id" :value="single_branch.id" >{{ single_branch.shortname }}</option>
+                                                        </select></div>
+                                                    <div class="col-2"><input type="submit" class="btn btn-primary" value="Export as PDF"/></div>
+                                                </div>                
+                                            </div>
+                                        </div>
+                                    </div>
                                     <div class="col-xl-10 col-lg-10 col-sm-12  layout-spacing">
                                         <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
                                                                  <div class="widget-content widget-content-area br-6">
@@ -38,33 +55,33 @@
                     <tr role="row">
                                                         <th>Product</th>
                                                         <th>Branch</th>
+                                                        <th>To Product</th>
+                                                        <th>To Branch</th>
                                                         <th>Qty</th>
-                                                        <th>Remark</th>
-                                                        <th>Type</th>
                                                         <th>By</th>
                                                         <th>Date</th>
                                                         <th class="no-content">Actions</th>
                                                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="recon in laravelData.data" :key="recon.id">
-                        <td>{{ JSON.parse(recon.data).name }}</td>
-                        <td v-if="recon.branch">{{ recon.branch.shortname }}</td>
+                    <tr v-for="transfer in laravelData.data" :key="transfer.id">
+                        <td v-if="transfer.from_product">{{ JSON.parse(transfer.from_product).name }}</td>
+                        <td v-else>No Product</td>
+                        <td v-if="transfer.from_branches">{{ transfer.from_branches.shortname }}</td>
                         <td v-else>No branch</td>
-                        <td>{{ recon.qty }}</td>
-                        <td>{{ recon.remark }}</td>
-                        <td>{{ recon.type }}</td>
-                        <td v-if="recon.user">{{ recon.user.name }}</td>
+                        <td v-if="transfer.to_product">{{ JSON.parse(transfer.to_product).name }}</td>
+                        <td v-else>No Product</td>
+                        <td v-if="transfer.to_branches">{{ transfer.to_branches.shortname }}</td>
+                        <td v-else>No branch</td>
+                        <td>{{ transfer.qty }}</td>
+                        <td v-if="transfer.user">{{ transfer.user.name }}</td>
                         <td v-else>No user</td>
-                        <td>{{ recon.created_at | moment("ddd, MMM Do YYYY") }}</td>
+                        <td>{{ transfer.created_at | moment("ddd, MMM Do YYYY") }}</td>
 
                                                         <td class="text-center">
-                                                          <a href="#" @click="delItem(recon)">
+                                                          <a href="#" @click="delItem(transfer)">
                                                                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg> 
                                                                         </a>
-                                                        <a href="#" @click="editRecon(recon)">
-                                                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-2"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path></svg>
-                                                        </a>
                                                         </td>
                     </tr>
 
@@ -74,9 +91,9 @@
                     <tr>
                        <th>Product</th>
                                                         <th>Branch</th>
+                                                        <th>To Product</th>
+                                                        <th>To Branch</th>
                                                         <th>Qty</th>
-                                                        <th>Remark</th>
-                                                        <th>Type</th>
                                                         <th>By</th>
                                                         <th>Date</th>
                                                         <th class="no-content">Actions</th>
@@ -120,27 +137,38 @@
 </div>
 </div>
 
+
+
+
+
+
 <div class="modal fade" id="createModel" tabindex="-1" role="dialog" aria-labelledby="createModelLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-<form  method="POST" @submit.prevent="reconcileSave"> 
+<form  method="POST" @submit.prevent="Save"> 
         <div class="modal-content">
             
             <div class="modal-header">
-                <h5 class="modal-title" id="createModelLabel">Reconcile</h5>
+                <h5 class="modal-title" id="createModelLabel">Transfer</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                   <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
                 </button>
             </div>
             <div class="modal-body">
 
-                <div class="form-group mb-4">
+                    <div class="form-group mb-4">
+                        <label for="inputAddress">Transfer Date</label><br>
+                        <input type="datetime-local" v-model="transfer.date" class="form-control" placeholder="Select Date.." required>                    
+                   </div>
+
+                   <div class="form-group mb-4">
                         <label for="inputAddress">Select Product</label><br>
 
                         <cool-select
-                        v-model="reconcile.item"
+                        v-model="transfer.from"
                         :items="products"
-                        :placeholder="reconcile.item ? '' : 'Select product'"
-                        item-text="name"
+                        :placeholder="transfer.from ? '' : 'Select product'"
+                        item-text="name" 
+                        :required= "true"
                         />
                     
                    </div>
@@ -148,109 +176,60 @@
                    <div class="form-row mb-2 text-center">
                     <div class="col-4">
                         <h4>Instore</h4>
-                        <p v-if="reconcile.item">{{ reconcile.item.instore }}</p>
+                        <p v-if="transfer.from">{{ transfer.from.instore }}</p>
                     </div>
                     <div class="col-4">
                         <h4>Selling Price</h4>
-                        <p v-if="reconcile.item">{{ reconcile.item.selling_price }}</p>
+                        <p v-if="transfer.from">{{ transfer.from.selling_price }}</p>
                     </div>
                     <div class="col-4">
                         <h4>Cost Price</h4>
-                        <p v-if="reconcile.item">{{ reconcile.item.cost_price }}</p>
+                        <p v-if="transfer.from">{{ transfer.from.cost_price }}</p>
                     </div>
                    </div>
-
-                   <div class="form-row mb-2">
-                       <div class="form-group col-md-6">
-                            <label for="qty">Qty</label>
-                            <input type="number" min="1" required v-model="reconcile.qty" class="form-control text-primary" required id="instore">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="type">Type</label>
-                            <select v-model="reconcile.type" required id="type"  class="form-control">
-                                <option value="in">In</option>
-                                <option value="out">Out</option>
-                            </select>
-                        </div>
-                   </div>
-
+                   <div class="form-group col-md-12 p-0">
+                                                        <label for="address">To Branch</label>
+                                                        <select class="form-control d-inline-block" v-model="transfer.branch" required @change="loadProduct2()">
+                                                            <option disabled>Select Branch</option>
+                                                            <option v-for="branch in branchies" :key="branch.id" :value="branch.id" >{{ branch.name }}</option>
+                                                        </select>
+                                                      </div>
+                    <div :class="display" >
+                    <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
+                   
                     <div class="form-group mb-4">
-                                                        <label for="remark">Remark</label>
-                                                        <textarea required class="form-control" id="remark" v-model="reconcile.remark" rows="3" maxlength="50"></textarea>
-                                                    </div>
-
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-danger" data-dismiss="modal"><i class="flaticon-cancel-12"></i> Discard</button>
-                <button type="submit" class="btn btn-primary">Reconcile</button>
-            </div>
-        </div>
-    </form>
-    </div> 
-</div>  
-
-<div class="modal fade" id="edit" tabindex="-1" role="dialog" aria-labelledby="editLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-<form  method="POST" @submit.prevent="reconcileUpdate"> 
-        <div class="modal-content">
-            
-            <div class="modal-header">
-                <h5 class="modal-title" id="editLabel">Edit Reconcile</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
-            </div>
-            <div class="modal-body">
-
-                <div class="form-group mb-4">
                         <label for="inputAddress">Select Product</label><br>
 
-                       <input type="text" :value="edit.data? JSON.parse(edit.data).name : ''"  readonly class="form-control text-primary"  id="inputAddress">
-                   </div>
-
-                   <div class="form-row mb-2 text-center">
-                    <div class="col-4">
-                        <h4>Instore</h4>
-                        <p v-if="edit.data">{{ data.instore }}</p>
-                    </div>
-                    <div class="col-4">
-                        <h4>Selling Price</h4>
-                        <p v-if="edit.data">{{ data.selling_price }}</p>
-                    </div>
-                    <div class="col-4">
-                        <h4>Cost Price</h4>
-                        <p v-if="edit.data">{{ data.cost_price }}</p>
-                    </div>
+                        <cool-select
+                        v-model="transfer.to"
+                        :items="products2"
+                        :placeholder="transfer.to ? '' : 'Select product'"
+                        item-text="name"
+                        />
+                    
                    </div>
 
                    <div class="form-row mb-2">
-                       <div class="form-group col-md-6">
+                       <div class="form-group col-md-12">
                             <label for="qty">Qty</label>
-                            <input type="number" min="1" v-model="edit.qty" class="form-control text-primary" required id="instore">
-                        </div>
-                        <div class="form-group col-md-6">
-                            <label for="type">Type</label>
-                            <select v-model="edit.type" required id="type"  class="form-control">
-                                <option value="in">In</option>
-                                <option value="out">Out</option>
-                            </select>
+                            <input type="number" min="1" required v-model="transfer.qty" class="form-control text-primary" id="instore">
                         </div>
                    </div>
+                    </div>
 
-                    <div class="form-group mb-4">
-                                                        <label for="remark">Remark</label>
-                                                        <textarea required class="form-control" id="remark" v-model="edit.remark" rows="3" maxlength="50"></textarea>
-                                                    </div>
+                   
 
             </div>
             <div class="modal-footer">
                 <button class="btn btn-danger" data-dismiss="modal"><i class="flaticon-cancel-12"></i> Discard</button>
-                <button type="submit" class="btn btn-primary">Update</button>
+                <button type="submit" class="btn btn-primary">Transfer</button>
             </div>
         </div>
     </form>
     </div> 
 </div>  
+
+
                                 </div>
 
 </layout>
@@ -266,18 +245,27 @@ import axios from 'axios';
 export default {
   // Using the shorthand
 //   layout: Layout,
-props: ['products'],
+props: ['products', 'branchies','all_branchies'],
   data: function () {
     return {
         laravelData: {},
        filter : {
            pagination : 5,
            search : '',
+           to_branch : '',
+           date : '',
+           to_date : '',
        },
        isLoading: false,
-       reconcile : {},
-       data : {},
-       edit : {},
+        transfer : {
+            to : {},
+            from : {},
+        },
+
+        products2 : [],
+        
+        display : 'd-none',
+
     };
   },
 
@@ -308,21 +296,23 @@ mounted : function(){
 
   methods: {
 
-editRecon(recon){
-    this.edit = recon;
-    axios.get(route('products.show', JSON.parse(recon.data).id))
+loadProduct2(){
+    this.isLoading = true;
+    this.display = 'd-block';
+    axios.get(route('branchProduct', this.transfer.branch))
     .then((response) => {
-            this.data = response.data[0];
-            $('#edit').modal('show');
+            this.products2 = response.data.products;
+            this.isLoading = false;
             })
 },
-      reconcileSave(){
-        axios.post(route('reconcile.store'), this.reconcile)
+    Save(){
+        axios.post(route('transfer.store'), this.transfer)
         .then((response) => {
-                this.reconcile = {};
+                this.transfer = {};
                 this.getResults();
                 this.isLoading = false;
                 $('#createModel').modal('hide');
+                this.display = 'd-none';
                 this.$toast.success(response.data.success);
             })
             .catch(error => {
@@ -335,7 +325,12 @@ editRecon(recon){
 
 },
 
-    reconcileUpdate(){
+editTransfer(transfer){
+    this.edit = transfer;
+    $('#edit').modal('show');
+},
+
+        Update(){
         axios.put(route('reconcile.update', this.edit.id), { details: this.edit, data: this.data })
         .then((response) => {
                 this.edit = {};
@@ -355,14 +350,14 @@ editRecon(recon){
 },
       getResults(page =1) {
 
-                axios.get('/api/reconcile?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search)
+                axios.get('/api/transfer?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search + "&to_branch=" + this.filter.to_branch + "&date=" + this.filter.date)
                     .then( response => {
                         this.laravelData = response.data;
                     });
             },
 
 
-    delItem(recon){
+    delItem(transfer){
 this.$swal.fire({
   title: 'Are you sure?',
   text: "You won't be able to revert this!",
@@ -376,13 +371,13 @@ this.$swal.fire({
 }).then((result) => {
   if (result.isConfirmed) {
       this.isLoading = true;
-            axios.delete(route('reconcile.destroy',{'reconcile' : recon.id}))
+            axios.delete(route('transfer.destroy',{'transfer' : transfer.id}))
             .then((response) => {
                 this.getResults();
                 this.isLoading = false;
                this.$swal.fire(
                     'Deleted!',
-                    'Reconcile deleted succesfully.',
+                    'Transfer deleted succesfully.',
                     'success'
                     );
             })

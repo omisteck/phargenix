@@ -92,6 +92,12 @@ class User extends Authenticatable
     }
 
 
+    public function transfers()
+    {
+        return $this->hasMany(Transfer::class);
+    }
+
+
     public function getAllPermissionsAttribute() {
         $permissions = [];
           foreach (Auth::user()->getAllPermissions() as $permission) {

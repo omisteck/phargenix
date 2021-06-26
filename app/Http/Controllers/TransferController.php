@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Helpers;
+use App\Models\Branch;
+use Inertia\Inertia;
+use App\Models\product;
 use App\Models\Transfer;
 use Illuminate\Http\Request;
 
@@ -14,7 +18,42 @@ class TransferController extends Controller
      */
     public function index()
     {
-        //
+        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
+        $data = collect();
+        foreach($products as $product){
+            $product["instore"] = Helpers::get_instore_value($product["id"]);
+            $data->push($product);
+        }
+
+        $branchies = Branch::where('id','!=', Helpers::active_branch()['id'])->where('organization_id', auth()->user()->organization->id )->get();
+        $all_branchies = Branch::where('organization_id', auth()->user()->organization->id )->get();
+        return Inertia::render("Transfer/Index", ['products' =>  $data, 'branchies' => $branchies, 'all_branchies' => $all_branchies ] );
+    }
+
+    public function search(Request $request){
+        
+        ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+
+        $transfers = auth()->user()->transfers();
+        ($request->has('to_branch') && $request->to_branch != '')? $transfers = $transfers->where('branch_to', $request->to_branch) : '';
+        ($request->has('date') && $request->date != '')? $transfers = $transfers->whereDate('created_at', $request->date) : '';
+        $transfers->with(['to_branches', 'from_branches', 'user']);
+        //  dd($request->all());
+        if($request->has('search') && $request->search != ''){
+            $transfers->where('from_product->name', 'LIKE', '%'.$request->search .'%')
+            ->orWhere('to_product->name', 'LIKE', '%'.$request->search .'%')
+                ->orWhereHas('to_branches', function($q) use($request) {
+                $q->where('shortname', 'LIKE', '%'.$request->search .'%');
+             })->orWhereHas('from_branches', function( $query ) use ( $request ){
+                 $query->where('shortname', 'LIKE', '%'.$request->search .'%');
+            })->orWhereHas('user', function( $query ) use ( $request ){
+                $query->where('name', 'LIKE', '%'.$request->search .'%');
+           });
+
+        }
+        
+    	$transfers = $transfers->paginate($pagination);
+    	return response()->json($transfers);
     }
 
     /**
@@ -35,7 +74,25 @@ class TransferController extends Controller
      */
     public function store(Request $request)
     {
-        //
+            $this->validate($request, [
+                'to' => 'required|array',
+                'from' =>  'required|array',
+                'date' => 'required|string',
+                'branch' => 'required|integer|exists:branches,id',
+                'qty' => 'required|integer'
+            ]);
+
+            Transfer::create([
+                "user_id" => auth()->user()->id,
+                "branch_from" => Helpers::active_branch()["id"],
+                "from_product" => json_encode($request->from),
+                "branch_to" => $request->branch,
+                "to_product" => json_encode($request->to),
+                'qty' => $request->qty,
+                'created_at' => $request->date
+            ]);
+
+            return response()->json(['success' => 'You have successfully transfer '.$request->from['name'] ]);
     }
 
     /**
@@ -80,6 +137,6 @@ class TransferController extends Controller
      */
     public function destroy(Transfer $transfer)
     {
-        //
+        $transfer->delete();
     }
 }

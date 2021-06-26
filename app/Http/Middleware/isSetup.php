@@ -5,6 +5,8 @@ namespace App\Http\Middleware;
 use Closure;
 use App\Helpers\Helpers;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Session;
 
 class isSetup
 {
@@ -18,7 +20,11 @@ class isSetup
     public function handle(Request $request, Closure $next)
     {
         if(Helpers::check_organization_setup()){
-            
+                    $branches = Auth::user()->branch;
+                    if(!Session::has('active_branch') && session('active_branch') == ""){
+                        session(['active_branch' => $branches[0] ]);
+                        session()->save();
+                    }
             return $next($request);
 
         }else{

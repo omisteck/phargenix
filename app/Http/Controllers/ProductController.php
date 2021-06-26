@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\Helpers;
+use App\Models\Branch;
 use App\Models\product;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -48,6 +49,12 @@ class ProductController extends Controller
         $products['data'] = $data;
 
     	return response()->json($products);
+    }
+
+
+    public function branchProduct($branch){
+        $products = product::where('branch_id',$branch)->get();
+        return response()->json(['products' => $products]);
     }
 
     /**
