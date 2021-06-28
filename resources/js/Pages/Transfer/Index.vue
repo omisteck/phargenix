@@ -50,7 +50,7 @@
             </div>
         </div>
         <div class="table-responsive">
-            <table id="zero-config" class="table dt-table-hover dataTable" style="width: 100%;" role="grid">
+            <table ref="testHtml" id="zero-config" class="table dt-table-hover dataTable" style="width: 100%;" role="grid">
                 <thead>
                     <tr role="row">
                                                         <th>Product</th>
@@ -191,7 +191,7 @@
                                                         <label for="address">To Branch</label>
                                                         <select class="form-control d-inline-block" v-model="transfer.branch" required @change="loadProduct2()">
                                                             <option disabled>Select Branch</option>
-                                                            <option v-for="branch in branchies" :key="branch.id" :value="branch.id" >{{ branch.name }}</option>
+                                                            <option v-for="branch in branchies" :key="branch.id" :value="branch.id" >{{ branch.shortname }}</option>
                                                         </select>
                                                       </div>
                     <div :class="display" >
@@ -241,6 +241,7 @@ import { Inertia } from '@inertiajs/inertia'
 import VueElementLoading from "vue-element-loading";
 import { CoolSelect } from "vue-cool-select";
 import axios from 'axios';
+
 
 export default {
   // Using the shorthand
@@ -295,7 +296,7 @@ mounted : function(){
 },
 
   methods: {
-
+      
 loadProduct2(){
     this.isLoading = true;
     this.display = 'd-block';

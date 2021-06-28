@@ -97,6 +97,11 @@ class User extends Authenticatable
         return $this->hasMany(Transfer::class);
     }
 
+    public function purchases()
+    {
+        return $this->hasMany(Purchase::class);
+    }
+
 
     public function getAllPermissionsAttribute() {
         $permissions = [];

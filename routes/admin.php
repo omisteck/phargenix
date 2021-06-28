@@ -14,6 +14,7 @@ use App\Http\Controllers\TransferController;
 use App\Http\Controllers\ReconcileController;
 use App\Http\Controllers\SalesReturnController;
 use App\Http\Controllers\OrganizationController;
+use App\Http\Controllers\PurchaseController;
 
 Route::resource('setup', SetupController::class);
 
@@ -46,6 +47,9 @@ Route::middleware(['isSetup'])->group(function () {
     Route::get('api/products', [ProductController::class, 'search'])->name('categories.search');
     Route::get('api/branch/products/{branch}', [ProductController::class, 'branchProduct'])->name('branchProduct');
 
+    Route::get('ledger/products', [ProductController::class, 'ledger'])->name('ledger');
+    Route::get('api/ledger', [ProductController::class, 'ledger_search'])->name('categories.search');
+
     Route::resource('sales', SalesController::class);
     Route::get('api/invoice', [SalesController::class, 'invoice_number']);
     Route::delete('sale/{sales:id}', [SalesController::class, 'delete_sale'])->name('delete_sale');
@@ -66,6 +70,11 @@ Route::middleware(['isSetup'])->group(function () {
 
     Route::resource('transfer', TransferController::class);
     Route::get('api/transfer', [TransferController::class, 'search'])->name('transfer.search');
+
+
+    Route::resource('purchases', PurchaseController::class);
+    Route::get('api/purchases', [PurchaseController::class, 'search'])->name('purchase.search');
+    Route::delete('purchase/{purchase:id}', [PurchaseController::class, 'delete_purchase'])->name('delete_purchase');
     
 });
 

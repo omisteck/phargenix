@@ -47,7 +47,7 @@
 
  <tr v-for="product in laravelData.data" :key="product.id">
  <td>{{ product.name }}</td>
-                                                        <td>{{ product.branch.name }}</td>
+                                                        <td>{{ product.branch.shortname }}</td>
                                                         <td>{{ product.selling_price }}</td>
                                                         <td>{{ product.cost_price }}</td>
                                                         <td>{{ product.instore }}</td>
@@ -159,7 +159,7 @@
                                                         <label for="address">For Branch</label>
                                                         <select class="form-control d-inline-block" v-model="product.branch_id" required>
                                                             <option value='' disabled>Select Branch</option>
-                                                            <option v-for="branch in branchies" :key="branch.id" :value="branch.id" >{{ branch.name }}</option>
+                                                            <option v-for="branch in branchies" :key="branch.id" :value="branch.id" >{{ branch.shortname }}</option>
                                                         </select>
                                                       </div>
 
@@ -219,7 +219,7 @@
                                                         <label for="address">For Branch</label>
                                                         <select class="form-control d-inline-block" v-model="edit.branch_id" required>
                                                             <option value='' disabled>Select Branch</option>
-                                                            <option v-for="branch in branchies" :key="branch.id" :value="branch.id" >{{ branch.name }}</option>
+                                                            <option v-for="branch in branchies" :key="branch.id" :value="branch.id" >{{ branch.shortname }}</option>
                                                         </select>
                                                       </div>
 

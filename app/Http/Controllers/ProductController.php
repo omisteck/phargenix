@@ -2,11 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Helpers\Helpers;
+use Inertia\Inertia;
+use App\Models\Sales;
+use App\Models\Staff;
 use App\Models\Branch;
 use App\Models\product;
+use App\Helpers\Helpers;
+use App\Models\Purchase;
+use App\Models\Transfer;
+use App\Models\Reconcile;
+use App\Models\Sales_Return;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
 {
@@ -52,9 +60,115 @@ class ProductController extends Controller
     }
 
 
+    public function ledger_search(Request $request){
+        
+        ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+        $data = collect(); $sales_formated = collect(); $transfers_formated = collect(); $sales_returns_formated = collect();$reconciles_formated = collect(); $purchases_formated = collect();
+        $sales = $transfer = $sales_returns = $reconciles = $purchases ='';
+        // dd($request->all());
+        if(($request->from_date != null || $request->to_date != null) &&
+            !($request->from_date != null && $request->to_date != null)
+        ){
+
+            $request->from_date ? $date = $request->from_date : $date = $request->to_date;
+            $sales = Sales::where('data->id', $request->search)->whereDate('created_at', $date)->with(['user']);
+            $transfers = Transfer::whereDate('created_at', $date)->where('from_product->id', $request->search)->orWhere('to_product->id', $request->search)->with(['user']);
+            $sales_returns = Sales_Return::where('data->id', $request->search)->whereDate('created_at', $date)->with(['user']);
+            $reconciles = Reconcile::where('data->id', $request->search)->whereDate('created_at', $date)->with(['user']);
+            $purchases = Purchase::where('product->id', $request->search)->whereDate('created_at', $date)->with(['user']);
+        }elseif(($request->has('from_date') && $request->from_date !='' ) && ($request->has('to_date') && $request->to_date !='')){
+            $from = $request->from_date;
+            $to = $request->to_date;
+            $sales = Sales::where('data->id', $request->search)->whereBetween('created_at', [$from, $to])->with(['user']);
+            $transfers = Transfer::whereBetween('created_at', [$from, $to])->where('from_product->id', $request->search)->orWhere('to_product->id', $request->search)->with(['user']);
+            $sales_returns = Sales_Return::where('data->id', $request->search)->whereBetween('created_at', [$from, $to])->with(['user']);
+            $reconciles = Reconcile::where('data->id', $request->search)->whereBetween('created_at', [$from, $to])->with(['user']);
+            $purchases = Purchase::where('product->id', $request->search)->whereBetween('created_at', [$from, $to])->with(['user']);
+        }else{
+            $sales = Sales::where('data->id', $request->search)->with(['user']);
+            $transfers = Transfer::where('from_product->id', $request->search)->orWhere('to_product->id', $request->search)->with(['user']);
+            $sales_returns = Sales_Return::where('data->id', $request->search)->with(['user']);
+            $reconciles = Reconcile::where('data->id', $request->search)->with(['user']);
+            $purchases = Purchase::where('product->id', $request->search)->with(['user', 'supplier']);
+        }
+
+        $sales= $sales->get();
+
+        foreach($sales as $sale){
+            $sale["desc"] = 'Product sales';
+            $sale["type"] = 'sales';
+            $sales_formated->push($sale);
+        }
+        // dd($sales_formated);
+        $transfers = $transfers->get();
+
+        foreach($transfers as $transfer){
+            $transfer["desc"] = 'Product Transfer';
+            $transfer["type"] = 'transfer';
+            $transfers_formated->push($transfer);
+        }
+
+        $sales_returns = $sales_returns->get();
+
+        foreach($sales_returns as $sales_return){
+            $sales_return["desc"] = 'Sales returned';
+            $sales_return["type"] = 'sales returned';
+            $sales_returns_formated->push($sales_return);
+        }
+        $reconciles = $reconciles->get();
+
+        foreach($reconciles as $reconcile){
+            $reconcile["desc"] = 'Product Reconcile';
+            $reconcile["types"] = 'reconcile';
+            $reconciles_formated->push($reconcile);
+        }
+        // dd($reconciles_formated);
+        $purchases = $purchases->get();
+
+        foreach($purchases as $purchase){
+            $purchase["desc"] = 'Product Purchases';
+            $purchase["type"] = 'purchases';
+            $purchases_formated->push($purchase);
+        }
+        $data = $data->merge($sales_formated);
+        $data = $data->merge($transfers_formated);
+        $data = $data->merge($sales_returns_formated);
+        $data = $data->merge($reconciles_formated);
+        $data = $data->merge($purchases_formated);
+        $data =  $data->sortBy(function($col)
+        {
+            return strtotime($col['created_at']);
+        })->values()->all();
+
+        $page = LengthAwarePaginator::resolveCurrentPage();
+        $currentPage = $page - 1;
+        $currentPage < 0 ? $currentPage = 0 : '';
+        $collection = new Collection($data);
+        $perPage = $pagination;
+        $currentPageSearchResults = $collection->slice($currentPage * $perPage, $perPage)->all();
+        $paginator = new LengthAwarePaginator($currentPageSearchResults, count($collection), $perPage);
+        $url = $request->path();
+        $path = "";
+        $path !="" ? $path : $url;
+        $paginator->setPath($path);
+        $array = $paginator->toArray();
+        $array['instore'] = Helpers::get_instore_value($request->search);
+
+    	return response()->json($array);
+    }
+
+
     public function branchProduct($branch){
         $products = product::where('branch_id',$branch)->get();
         return response()->json(['products' => $products]);
+    }
+
+
+    public function ledger(){
+        $user = auth()->user();
+        $branchies = Staff::where('user_id', $user->id)->with('branch');
+        $products = $user->organization->products;
+        return Inertia::render('Ledger/Index', ['branchies' => $branchies, 'products' => $products]);
     }
 
     /**
