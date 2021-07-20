@@ -138,7 +138,7 @@
                                                 </div>
 
                                                  <form @submit.prevent="updatePurchase" class="mt-2">
-                                                        <button type="submit" class="btn btn-lg btn-outline-success">Purchase</button>
+                                                        <button type="submit" class="btn btn-lg btn-outline-success">Update</button>
                                                     </form>
                                             </div>
                                         </div>
@@ -292,7 +292,6 @@ props : ['branchies', 'categories', 'suppliers', 'products', 'data'],
 created : function(){
     this.isLoading = true;
     $(document).ready(function(){
-        App.init();
         $('.remove').remove();
     })
 },

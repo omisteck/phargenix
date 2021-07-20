@@ -152,7 +152,7 @@ class BranchController extends Controller
     public function delete( Request $request)
     {
         $bran = Branch::where('name',$request->branch)->first();
-        Staff::where('branch_id', $bran->id)->where('organization_id', auth()->user()->organization->id)->update(["branch_id" => NULL]);
+        Staff::where('branch_id', $bran->id)->where('user_id', $request->user)->where('organization_id', auth()->user()->organization->id)->delete();
         return response()->json(['success' => 'User successfully removed from a branch'], 200);
     }
 }

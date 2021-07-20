@@ -255,7 +255,7 @@
 <div class="mt-3">
 <h6>Selected: </h6>
 <p class="text-secondary">
-    <button type="button" @click="deleteBranch(branch)" class="btn btn-primary m-2" v-for="branch in editBranch" :key="branch">
+    <button type="button" @click="deleteBranch(branch, index)" class="btn btn-primary m-2" v-for="(branch, index) in editBranch" :key="branch">
   {{ branch }} <span class="badge badge-danger">x</span>
   <span class="sr-only">delete</span>
 </button>
@@ -327,9 +327,11 @@ props : ['branches', 'roles'],
 
 mounted : function(){
    this.getResults();
+      this.isLoading = false;
 },
 
 created : function () {
+      this.isLoading = true;
      $('head').append( $('<link rel="stylesheet" id="table" class="remove" type="text/css" />').attr('href', '/dashboard/plugins/table/datatable/dt-global_style.css') );
 },
 
@@ -367,7 +369,7 @@ components: {
                 this.staff= {};
                 $('#createModel').modal('hide');
                 this.$toast.success(response.data.success);
-                this.$inertia.visit('staffs');
+                this.getResults();
             })
             .catch(error => {
                 let errors = error.response.data.errors;
@@ -399,7 +401,8 @@ this.$swal.fire({
                     'Your deleted a staff successfully.',
                     'success'
                     );
-                this.$inertia.visit('staffs');
+                    this.getResults();
+                // this.$inertia.visit('staffs');
             })
              .catch(error => {
                 let errors = error.response.data.errors;
@@ -416,7 +419,9 @@ updateStaff(){
             axios.put(route('user.update', this.staff.id), this.staff)
         .then((response) => {
                 this.$toast.success(response.data.success);
-                this.$inertia.visit('staffs');
+                this.staff ={};
+                $('#editModel').modal('hide');
+                this.getResults();
             })
             .catch(error => {
                 this.isLoading = false;
@@ -426,7 +431,7 @@ updateStaff(){
                 }
             });
         },
-deleteBranch(branch){
+deleteBranch(branch, index){
             this.$swal.fire({
   title: 'Are you sure?',
   text: "You won't be able to revert this!",
@@ -447,7 +452,8 @@ deleteBranch(branch){
                     'You remove a branch successfully.',
                     'success'
                     );
-                this.$inertia.visit('staffs');
+                this.editBranch.splice(index,1);
+                this.getResults();
             })
              .catch(error => {
                 let errors = error.response.data.errors;

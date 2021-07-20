@@ -27,4 +27,9 @@ class category extends Model
     {
         return $this->hasMany(product::class);
     }
+
+    public function branches()
+    {
+        return $this->belongsTo(Branch::class);
+    }
 }

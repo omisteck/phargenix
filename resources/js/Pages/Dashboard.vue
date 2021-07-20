@@ -149,7 +149,7 @@
       </div>
     </div>
 
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 layout-spacing">
+    <div class="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-12 layout-spacing">
       <div class="widget widget-table-one">
         <div class="widget-heading">
           <h5 class="">Transactions</h5>
@@ -307,7 +307,7 @@
       </div>
     </div>
 
-    <div class="col-xl-12 col-lg-12 col-md-12 col-sm-12 col-12 layout-spacing">
+    <div class="col-xl-11 col-lg-11 col-md-12 col-sm-12 col-12 layout-spacing">
       <div class="widget widget-chart-one">
         <div class="widget-heading">
           <h5 class="">Revenue</h5>

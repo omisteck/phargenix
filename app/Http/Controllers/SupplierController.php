@@ -12,7 +12,7 @@ class SupplierController extends Controller
 
     public function __construct()
     {
-        $this->middleware('auth');
+        $this->middleware(['permission:Manage Supplier','auth'])->except('search');
     }
 
 
@@ -39,7 +39,7 @@ class SupplierController extends Controller
                     ->orWhere('sales_rep','LIKE', '%'.$request->search .'%')
                     ->orWhere('sales_rep_contact','LIKE', '%'.$request->search .'%');
         }
-        $supplier = $supplier->paginate($pagination);
+        $supplier = $supplier->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($supplier);
     }
 

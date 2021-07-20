@@ -8,6 +8,7 @@ use App\Models\Sales;
 use App\Models\Staff;
 use App\Models\Branch;
 use App\Helpers\Helpers;
+use App\Models\product;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -21,9 +22,17 @@ class SalesController extends Controller
      * @return \Illuminate\Http\Response
      */
 
+    public function __construct()
+    {
+        $this->middleware(['permission:Manage Product'])->except(['invoice_number', 'create', 'old_sales','store']);
+    }
+
+
     public function invoice_number(){
         
-        if(session('used_invoice') == true){
+        if(session('used_invoice') == false && (session('invoice') == null || session('invoice') == '')){
+            session(['invoice' => Helpers::generateInvoiceNumber()]);
+        }elseif(session('used_invoice') == true && (session('invoice') != null)){
             session(['invoice' => Helpers::generateInvoiceNumber()]);
             session(['used_invoice' => false ]);
             session()->save();
@@ -42,7 +51,12 @@ class SalesController extends Controller
         
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
 
-        $sales = auth()->user()->sales()->where('branch_id', Helpers::active_branch()['id'])->with(['user','branch']);
+        if(auth()->user()->level == 'admin'){
+            $sales = Sales::where('branch_id', Helpers::active_branch()['id'])->with(['user', 'branch']);
+        }else{
+            $sales = auth()->user()->sales()->where('branch_id', Helpers::active_branch()['id'])->with(['user','branch']);
+        }
+        
 
         if($request->has('search') && $request->search != ''){
             $sales->where('data->name','LIKE', '%'.$request->search .'%')
@@ -57,7 +71,7 @@ class SalesController extends Controller
 
         }
         
-    	$sales = $sales->paginate($pagination);
+    	$sales = $sales->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($sales);
     }
 
@@ -70,9 +84,9 @@ class SalesController extends Controller
     public function create()
     {
         $user = auth()->user();
+        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
         $branchies = Staff::where('user_id', auth()->user()->id)->with('branch');
         $categories = $user->organization->categories;
-        $products = $user->organization->products;
         $data = collect();
         foreach($products as $product){
             $product["instore"] = Helpers::get_instore_value($product["id"]);
@@ -99,7 +113,7 @@ class SalesController extends Controller
     public function old_sales()
     {
         $user = auth()->user();
-        $products = $user->organization->products;
+        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
         $data = collect();
         foreach($products as $product){
             $product["instore"] = Helpers::get_instore_value($product["id"]);
@@ -189,7 +203,7 @@ class SalesController extends Controller
         $transaction = Sales::where('invoice_number', $sales)->get();
         
         $user = auth()->user();
-        $products = $user->organization->products;
+        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
         $data = collect();
         foreach($products as $product){
             $product["instore"] = Helpers::get_instore_value($product["id"]);
@@ -240,7 +254,7 @@ class SalesController extends Controller
             'mode' => 'required|string',
             'paid' => 'required|numeric'
         ]); 
-        $sale = Sales::where('id',$sales)->first();
+        $sale = Sales::where('invoice_number',$sales)->first();
         (!empty($sale))? $sold=$sale->user_id : $sold = Auth::user()->id;
         $sum = collect($request->items)->sum('total');
         foreach($request->items as $item){

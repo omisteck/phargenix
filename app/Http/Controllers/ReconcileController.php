@@ -11,6 +11,12 @@ use Illuminate\Http\Request;
 
 class ReconcileController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware(['permission:Stock Reconciliation']);
+    }
+
     public function index(){
         $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
         $data = collect();
@@ -24,8 +30,11 @@ class ReconcileController extends Controller
     public function search(Request $request){
 
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
-
-        $reconcile = auth()->user()->reconciles()->with(['user','branch']);
+        if(auth()->user()->level == 'admin'){
+            $reconcile = Reconcile::with(['user','branch']);    
+        }else{
+            $reconcile = auth()->user()->reconciles()->with(['user','branch']);
+        }
 
         if($request->has('search') && $request->search != ''){
             $reconcile->where('data->name','LIKE', '%'.$request->search .'%')

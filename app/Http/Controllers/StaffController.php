@@ -4,8 +4,11 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use Inertia\Inertia;
+use App\Models\Sales;
 use App\Models\Staff;
 use App\Models\Branch;
+use App\Helpers\Helpers;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
@@ -24,10 +27,16 @@ class StaffController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
     public function index()
-    {
-        $branches = Auth::user()->organization->branches->pluck('name');
-        $roles = Role::all();
+    {   
+        if(auth()->user()->level == 'admin'){
+            $branches = Auth::user()->organization->branches->pluck('name');
+            $roles = Role::all();
+        }else{
+            $branches = Auth::user()->branch->pluck('name');
+            $roles = Role::where('name', '!=', 'manager')->get();
+        }
         return Inertia::render("Staff/Index", ['branches' => $branches, 'roles' => $roles ]);
     }
 
@@ -35,8 +44,11 @@ class StaffController extends Controller
     public function search(Request $request){
         
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
-        
-        $staffs = auth()->user()->organization->staffs()->with(['user', 'branch']);
+        if(auth()->user()->level == 'admin'){
+            $staffs = auth()->user()->organization->staffs()->with(['user', 'branch']);
+        }else{
+            $staffs = Staff::where( 'branch_id', Helpers::active_branch()['id'])->with(['user', 'branch']);
+        }
         if($request->has('search') && $request->search != ''){
 
             $staffs->whereHas('user', function($q) use($request) {
@@ -47,7 +59,7 @@ class StaffController extends Controller
                  ->orWhere('shortname','LIKE', '%'.$request->search .'%');
         });
         }
-        $staffs = $staffs->paginate($pagination);
+        $staffs = $staffs->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($staffs);
     }
 
@@ -66,6 +78,29 @@ class StaffController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+    public function sales_record(Request $request)
+    {
+        $this->validate($request, [
+            'staff' => 'required',
+            'date' => 'required',
+        ]);
+
+            $sales = Sales::where('user_id', $request->staff)->with(['user']);
+            // dd($sales->get());
+            if($request->has('date') && $request->date != '' && $request->date != null){
+                $date = Carbon::parse($request->date);
+                $sales->whereDate('created_at', $date);
+            }
+            // dd($request->date);
+            if($request->has('shift') && $request->shift != ''&& $request->shift != null ){
+                $sales->where('shift', $request->shift);
+            }
+            // dd($sales->get());
+            $sales = $sales->orderBy('created_at','desc')->orderBy('shift','desc')->get();
+            
+            return Inertia::render('Sales/List', ['sales' => $sales]);
+    }
+
     public function create()
     {
         

@@ -157,7 +157,7 @@
 
                     <div class="form-group mb-4">
                         <label for="inputAddress">Transfer Date</label><br>
-                        <input type="datetime-local" v-model="transfer.date" class="form-control" placeholder="Select Date.." required>                    
+                        <input type="date" v-model="transfer.date" class="form-control" placeholder="Select Date.." required>                    
                    </div>
 
                    <div class="form-group mb-4">
@@ -246,7 +246,7 @@ import axios from 'axios';
 export default {
   // Using the shorthand
 //   layout: Layout,
-props: ['products', 'branchies','all_branchies'],
+props: ['branchies','all_branchies'],
   data: function () {
     return {
         laravelData: {},
@@ -262,7 +262,7 @@ props: ['products', 'branchies','all_branchies'],
             to : {},
             from : {},
         },
-
+        products:[],
         products2 : [],
         
         display : 'd-none',
@@ -279,18 +279,12 @@ CoolSelect,
     
   },
   created : function () {
-      $(document).ready(function() {
-            App.init();
-      });
       this.isLoading = true;
       
      $('head').append( $('<link rel="stylesheet" id="table" class="remove" type="text/css" />').attr('href', '/dashboard/plugins/table/datatable/dt-global_style.css') );
 },
 
 mounted : function(){
-    $(document).ready(function() {
-            App.init();
-      });
    this.getResults();
    this.isLoading = false;
 },
@@ -307,6 +301,7 @@ loadProduct2(){
             })
 },
     Save(){
+        this.isLoading = true;
         axios.post(route('transfer.store'), this.transfer)
         .then((response) => {
                 this.transfer = {};
@@ -350,11 +345,15 @@ editTransfer(transfer){
 
 },
       getResults(page =1) {
-
-                axios.get('/api/transfer?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search + "&to_branch=" + this.filter.to_branch + "&date=" + this.filter.date)
+                axios.get('/get/products')
+                .then(response => {
+                    this.products = response.data.products;
+                    axios.get('/api/transfer?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search + "&to_branch=" + this.filter.to_branch + "&date=" + this.filter.date)
                     .then( response => {
                         this.laravelData = response.data;
                     });
+                })
+                
             },
 
 

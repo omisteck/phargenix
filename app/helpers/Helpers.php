@@ -2,7 +2,11 @@
 
 namespace App\Helpers;
 
+use App\Models\Purchase;
+use App\Models\Reconcile;
 use App\Models\Sales;
+use App\Models\Sales_Return;
+use App\Models\Transfer;
 use Carbon\Carbon;
 use Keygen\Keygen;
 
@@ -10,14 +14,28 @@ class Helpers{
 
     static public function check_organization_setup(){
         $user = auth()->user();
-        if( $user->level == 'admin' && !empty($user->organization)){
+
+        if( !empty($user) && !empty($user->organization)){
             return true;
+        }elseif( !empty($user) && empty($user->organization) && $user->level == 'admin' ){
+            return false;
+        }else{
+            return redirect()->route('home')->with('error', 'Please setup your business and branches');
         }
-        return false;
+        
     }
 
     static public function get_instore_value($product){
-        return 18;
+        $purchases = Purchase::where("product->id", $product)->sum("qty");
+        $transfer_in = Transfer::where("to_product->id", $product)->sum("qty");
+        $transfer_out = Transfer::where("from_product->id", $product)->sum("qty");
+        
+        $reconcile_in = Reconcile::where("data->id", $product)->where('type', 'in')->sum("qty");
+        $reconcile_out = Reconcile::where("data->id", $product)->where('type', 'out')->sum("qty");
+        $sales = Sales::where("data->id", $product)->sum("qty");
+        $return_sales = Sales_Return::where("data->id", $product)->sum("qty");
+        // dd($sales);
+        return (($purchases + $transfer_in + $reconcile_in) -( $transfer_out + $reconcile_out + $sales ));
     }
 
     static protected function generateNumericKey()

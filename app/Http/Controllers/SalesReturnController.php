@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Sales;
+use App\Helpers\Helpers;
 use App\Models\Sales_Return;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -24,7 +25,11 @@ class SalesReturnController extends Controller
 
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
 
-        $sales = auth()->user()->sales_returns()->with(['user','branch']);
+        if(auth()->user()->level == 'admin'){
+            $sales = Sales_Return::where('branch_id', Helpers::active_branch()['id'])->with(['user','branch']);
+        }else{
+            $sales = auth()->user()->sales_returns()->with(['user','branch']);
+        }
 
         if($request->has('search') && $request->search != ''){
             $sales->where('data->name','LIKE', '%'.$request->search .'%')
@@ -37,7 +42,7 @@ class SalesReturnController extends Controller
 
         }
         
-    	$sales = $sales->paginate($pagination);
+    	$sales = $sales->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($sales);
     }
 
@@ -62,10 +67,12 @@ class SalesReturnController extends Controller
     {
         $this->validate($request,[
             'invoice_number' => 'required|exists:sales,invoice_number',
+            'id' => 'required|exists:sales,id',
         ]);
 
         Sales::where('id', $request->id)->delete();
-
+        $sum = Sales::where('invoice_number', $request->invoice_number)->sum('total');
+        Sales::where('invoice_number', $request->invoice_number)->update(['invoice_total' => $sum]);
         Sales_Return::create([
             'invoice_number' => $request->invoice_number,
             'data' => $request->data,
@@ -127,9 +134,11 @@ class SalesReturnController extends Controller
      */
     public function destroy($Sales_Return)
     {
-        $sale = Sales_Return::where('id', $Sales_Return );
-        $sales_id = $sale->first()->sale_id;
+        $sale = Sales_Return::where('id', $Sales_Return )->first();
+        $sales_id = $sale->sale_id;
         Sales::where('id', $sales_id)->restore();
+        $sum = Sales::where('invoice_number', $sale->invoice_number)->sum('total');
+        Sales::where('invoice_number', $sale->invoice_number)->update(['invoice_total' => $sum]);
         $sale->delete();
     }
 }

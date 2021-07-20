@@ -188,18 +188,12 @@ CoolSelect,
     
   },
   created : function () {
-      $(document).ready(function() {
-            App.init();
-      });
       this.isLoading = true;
       
      $('head').append( $('<link rel="stylesheet" id="table" class="remove" type="text/css" />').attr('href', '/dashboard/plugins/table/datatable/dt-global_style.css') );
 },
 
 mounted : function(){
-    $(document).ready(function() {
-            App.init();
-      });
    this.isLoading = false;
 },
 

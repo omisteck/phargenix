@@ -15,6 +15,13 @@ class CreatePaymentsTable extends Migration
     {
         Schema::create('payments', function (Blueprint $table) {
             $table->id();
+            $table->string('invoice_number');
+            $table->integer('amount');
+            $table->string('mode');
+            $table->string('remark')->nullable();
+            $table->foreignId('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
+            $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->foreignId('branch_id')->references('id')->on('branches')->onDelete('cascade');
             $table->timestamps();
         });
     }

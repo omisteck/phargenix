@@ -13,9 +13,9 @@ class AddOrganizationIdToUsersTable extends Migration
      */
     public function up()
     {
-        // Schema::table('users', function (Blueprint $table) {
-        //     $table->foreignId('organization_id')->references('id')->on('organizations')->nullable()->unsigned();
-        // });
+        Schema::table('users', function (Blueprint $table) {
+            $table->foreignId('organization_id')->references('id')->on('organizations')->nullable()->unsigned();
+        });
     }
 
     /**

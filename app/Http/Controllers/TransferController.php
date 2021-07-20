@@ -16,28 +16,32 @@ class TransferController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function __construct()
+    {
+        $this->middleware(['permission:Transfer']);
+    }
+    
     public function index()
     {
-        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
-        $data = collect();
-        foreach($products as $product){
-            $product["instore"] = Helpers::get_instore_value($product["id"]);
-            $data->push($product);
-        }
-
         $branchies = Branch::where('id','!=', Helpers::active_branch()['id'])->where('organization_id', auth()->user()->organization->id )->get();
         $all_branchies = Branch::where('organization_id', auth()->user()->organization->id )->get();
-        return Inertia::render("Transfer/Index", ['products' =>  $data, 'branchies' => $branchies, 'all_branchies' => $all_branchies ] );
+        return Inertia::render("Transfer/Index", ['branchies' => $branchies, 'all_branchies' => $all_branchies ] );
     }
 
     public function search(Request $request){
         
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
 
-        $transfers = auth()->user()->transfers();
+        
+        if(auth()->user()->level == 'admin'){
+            $transfers = Transfer::with(['to_branches', 'from_branches', 'user']);
+        }else{
+            $transfers = auth()->user()->transfers()->with(['to_branches', 'from_branches', 'user']);
+        }
+
         ($request->has('to_branch') && $request->to_branch != '')? $transfers = $transfers->where('branch_to', $request->to_branch) : '';
         ($request->has('date') && $request->date != '')? $transfers = $transfers->whereDate('created_at', $request->date) : '';
-        $transfers->with(['to_branches', 'from_branches', 'user']);
         //  dd($request->all());
         if($request->has('search') && $request->search != ''){
             $transfers->where('from_product->name', 'LIKE', '%'.$request->search .'%')

@@ -8,12 +8,14 @@ use App\Models\Staff;
 use App\Models\Branch;
 use App\Models\product;
 use App\Helpers\Helpers;
+use App\Models\category;
 use App\Models\Purchase;
 use App\Models\Transfer;
 use App\Models\Reconcile;
 use App\Models\Sales_Return;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Gate;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class ProductController extends Controller
@@ -23,11 +25,33 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function __construct()
+    {
+        $this->middleware(['permission:Manage Product'])->except([ 'ledger_search' , 'ledger']);
+    }
+
+    public function products(){
+        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
+        $data = collect();
+        foreach($products as $product){
+            $product["instore"] = Helpers::get_instore_value($product["id"]);
+            $data->push($product);
+        }
+
+        return response()->json(['products' => $data]);
+    }
+
     public function index()
     {
-        $organization = auth()->user()->organization;
-        $branches = $organization->branches;
+        $user = auth()->user();
+        $organization = $user->organization;
         $categories = $organization->categories;
+        if($user->level == 'admin'){
+            $branches = $organization->branches;
+        }else{
+            $branches = $user->branch;
+        }
         return Inertia::render('product/Index', ['branchies' => $branches, 'categories' => $categories]);
     }
 
@@ -35,8 +59,13 @@ class ProductController extends Controller
     public function search(Request $request){
         
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+        
+        if(auth()->user()->level == 'admin'){
+            $products = auth()->user()->organization->products()->with(['branch','category']);
+        }else{
+            $products = product::where('branch_id', Helpers::active_branch()['id'])->with(['branch','category']);
+        }
 
-        $products = auth()->user()->organization->products()->with(['branch','category']);
         if($request->has('search') && $request->search != ''){
             $products->where('name', 'LIKE', '%'.$request->search .'%')
                 ->orWhereHas('branch', function($q) use($request) {
@@ -47,7 +76,7 @@ class ProductController extends Controller
 
         }
         
-    	$products = $products->paginate($pagination);
+    	$products = $products->orderBy('created_at', 'desc')->paginate($pagination);
         $products = $products->toArray();
         $data = collect();
         foreach($products["data"] as $single_record){
@@ -63,6 +92,7 @@ class ProductController extends Controller
     public function ledger_search(Request $request){
         
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+        
         $data = collect(); $sales_formated = collect(); $transfers_formated = collect(); $sales_returns_formated = collect();$reconciles_formated = collect(); $purchases_formated = collect();
         $sales = $transfer = $sales_returns = $reconciles = $purchases ='';
         // dd($request->all());
@@ -167,7 +197,11 @@ class ProductController extends Controller
     public function ledger(){
         $user = auth()->user();
         $branchies = Staff::where('user_id', $user->id)->with('branch');
-        $products = $user->organization->products;
+        if(auth()->user()->level == 'admin'){
+            $products = $user->organization->products;
+        }else{
+            $products = product::where('branch_id', Helpers::active_branch()['id']);
+        }
         return Inertia::render('Ledger/Index', ['branchies' => $branchies, 'products' => $products]);
     }
 

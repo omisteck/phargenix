@@ -4,13 +4,21 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Staff;
-use App\Helpers\Helpers;
 use App\Models\product;
+use App\Helpers\Helpers;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class PurchaseController extends Controller
 {
+
+    public function __construct()
+    {
+        $this->middleware(['permission:Manage Purchase','auth']);
+    }
+
+    
     /**
      * Display a listing of the resource.
      *
@@ -32,7 +40,7 @@ class PurchaseController extends Controller
         $branchies = Staff::where('user_id', auth()->user()->id)->with('branch');
         $suppliers = $user->organization->suppliers;
         $categories = $user->organization->categories;
-        $products = $user->organization->products;
+        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
         $data = collect();
         foreach($products as $product){
             $product["instore"] = Helpers::get_instore_value($product["id"]);
@@ -48,22 +56,25 @@ class PurchaseController extends Controller
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
 
         $purchases = auth()->user()->purchases()->where('branch_id', Helpers::active_branch()['id'])
-        ->rightJoin('suppliers', 'purchases.supplier', '=', 'suppliers.id')
-        ->with(['user','branch']);
+        ->distinct()
+        ->select('invoice_number','supplier','settlement','user_id', 'branch_id','created_at')
+        ->with(['user','branch', 'supplier']);
 
         if($request->has('search') && $request->search != ''){
-            $purchases->where('product->name','LIKE', '%'.$request->search .'%')
-            ->orWhere('invoice_number', 'LIKE', '%'.$request->search .'%')
-            ->orWhere('name', 'LIKE', '%'.$request->search .'%')
+            $purchases->where('invoice_number','LIKE', '%'.$request->search .'%')
             ->orWhereHas('branch', function($q) use($request) {
                 $q->where('shortname', 'LIKE', '%'.$request->search .'%');
-             })->orWhereHas('user', function( $query ) use ( $request ){
+             })
+             ->orWhereHas('supplier', function($q) use($request) {
+                $q->where('name', 'LIKE', '%'.$request->search .'%');
+             })
+             ->orWhereHas('user', function( $query ) use ( $request ){
                  $query->where('name', 'LIKE', '%'.$request->search .'%');
             });
 
         }
-        
-    	$purchases = $purchases->paginate($pagination);
+
+    	$purchases = $purchases->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($purchases);
 
     }
@@ -206,7 +217,7 @@ class PurchaseController extends Controller
 
     public function delete_purchase( $purchase )
     {
-        $purchase = Purchase::where('id', $purchase);
+        $purchase = Purchase::where('invoice_number', $purchase);
         $purchase->delete();
     }
 }

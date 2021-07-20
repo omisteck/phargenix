@@ -246,8 +246,10 @@ components: {
 
   mounted : function(){
    this.getResults();
+      this.isLoading = false;
 },
 created : function () {
+      this.isLoading = true;
      $('head').append( $('<link rel="stylesheet" id="table" class="remove" type="text/css" />').attr('href', '/dashboard/plugins/table/datatable/dt-global_style.css') );
 },
 

@@ -27,10 +27,12 @@ class User extends Authenticatable
         'email',
         'password',
         'username',
+        'address',
         'position',
         'level',
         'phone',
-        'password'
+        'password',
+        'organization_id'
     ];
 
     /**
@@ -58,9 +60,9 @@ class User extends Authenticatable
      */
     public function organization()
     {
-        return $this->hasOne(Organization::class);
+        return $this->hasOne(Organization::class, 'id', "organization_id");
     }
-
+    
     public function staff()
     {
         return $this->hasOne(Staff::class);
@@ -89,6 +91,12 @@ class User extends Authenticatable
     public function reconciles()
     {
         return $this->hasMany(Reconcile::class);
+    }
+
+
+    public function expenses()
+    {
+        return $this->hasMany(Expenses::class);
     }
 
 

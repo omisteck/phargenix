@@ -27,6 +27,16 @@ class Branch extends Model
         return $this->belongsTo(Organization::class);
     }
 
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function categories()
+    {
+        return $this->hasMany(category::class);
+    }
+
     public function staffs()
     {
         return $this->belongsToMany(User::class);
@@ -46,5 +56,10 @@ class Branch extends Model
     public function sales()
     {
         return $this->hasMany(sales::class);
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
     }
 }

@@ -50,6 +50,8 @@ class TestController extends Controller
         //     'newClass' => 'SS1'
         // ]);
 
-        
+        // $permission = Permission::where('name', 'old sales')->first();
+        // $role = Role::where('name', 'cashier')->first();
+        // $permission->removeRole($role);
     }
 }

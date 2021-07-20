@@ -19,7 +19,7 @@
                                                     <div class="form-row">
                                                             <div class="form-group col-md-4">
                                                                 <label for="staff">Date</label>
-                                                                <input type="datetime-local" v-model="cart.date" class="form-control btn btn-info" placeholder="Select Date.." required>
+                                                                <input type="date" v-model="cart.date" class="form-control btn btn-info" placeholder="Select Date.." required>
                                                             </div>
                                                             
                                                         </div>
@@ -81,7 +81,7 @@
                                             <div class="card-body">
                                                 <h5 class="card-title mt-2 d-inline-block">Cart | </h5>
 
-                                                <strong class="card-category"> ({{ cart.items.length }} item added)</strong>
+                                                <strong class="card-category"> ({{ (cart.items)? cart.items.length : 0 }} item added)</strong>
                                                 <div class="table-responsive"><!--style="min-height: 300px;" -->
                                                     <table class="table table-sm" >
                                                         <thead>
@@ -201,9 +201,6 @@ created : function(){
 },
 
 mounted : function(){
-    $(document).ready(function(){
-        App.init();
-    });
     if(localStorage.getItem("cart") != undefined){
         this.cart.items = JSON.parse(localStorage.getItem("old_cart"));
     }else{
@@ -244,7 +241,9 @@ saveSales(){
 },
 
 subTotal(cart,index){
-   return cart.reduce((acc, item) => acc + item[index], 0);
+    if(cart != null){
+        return cart.reduce((acc, item) => acc + item[index], 0);
+    }
 },
 
     calTotal(){
@@ -274,6 +273,7 @@ if(this.sale.item.name != undefined){
  items.push(this.sale);
  localStorage.setItem("old_cart",JSON.stringify(items));
  this.cart.items = JSON.parse(localStorage.getItem("old_cart"));
+this.sale = {};
 }
 },
     focusInput(){

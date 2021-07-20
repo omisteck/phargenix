@@ -35,6 +35,7 @@
       :placeholder="purchase.supplier ? '' : 'Select supplier'"
       item-text="name"
       item-value="id"
+      :readonly="supplierSet"
     />
                                                         </div>
 
@@ -285,6 +286,7 @@ props : ['branchies', 'categories', 'suppliers', 'products'],
         newSupplier : {},
         changeInvoice : false,
         invoiceSet : false,
+        supplierSet : false,
     };
   },
 
@@ -292,12 +294,12 @@ props : ['branchies', 'categories', 'suppliers', 'products'],
 created : function(){
     this.isLoading = true;
     $(document).ready(function(){
-        App.init();
         $('.remove').remove();
     })
 },
 
 mounted : function(){
+      
     if(localStorage.getItem("purchase_cart") != undefined){
         this.cart.items = JSON.parse(localStorage.getItem("purchase_cart"));
         this.purchase.invoice = this.cart.items[0]? this.cart.items[0].invoice : '';
@@ -306,6 +308,9 @@ mounted : function(){
         }
         this.purchase.date = this.cart.items[0]? this.cart.items[0].date : '';
         this.purchase.supplier = this.cart.items[0]? this.cart.items[0].supplier : '';
+        if(this.purchase.supplier != ''){
+            this.supplierSet = true;
+        }
     }else{
         localStorage.setItem("purchase_cart",JSON.stringify([]));
     }
@@ -419,11 +424,16 @@ var items = [];
  localStorage.setItem("purchase_cart",JSON.stringify(items));
  this.cart.items = JSON.parse(localStorage.getItem("purchase_cart"));
  this.invoiceSet = true;
+ this.supplierSet = true;
+ this.purchase.item ={};
+ this.purchase.total =0;
+ this.$refs.qty = 0;
 }
 },
     focusInput(){
         this.purchase.qty = 0;
-        this.$refs.qty.focus();
+        // this.$refs.qty.focus();
+        this.$nextTick(() => this.$refs.qty.focus())
     },
 storeProduct(){
           axios.post(route('products.store'), this.product)

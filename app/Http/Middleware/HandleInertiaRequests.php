@@ -47,9 +47,13 @@ class HandleInertiaRequests extends Middleware
                 ? $request->user()->only('id', 'name', 'email')
                 : null,
 
+                'user.access' => fn () => $request->user()
+                ? $request->user()->only('position','level')
+                : null,
+
             'user.branches' => function(){ 
                 global $request;
-                // dd(session('active_branch'));
+                
                 if($request->user()){
                     $branches = $request->user()->branch;
                     if(!Session::has('active_branch') && session('active_branch') == ""){

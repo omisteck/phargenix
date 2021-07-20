@@ -23,7 +23,7 @@
 
                                               <div class="dropdown-menu dropdown-menu-right" aria-labelledby="customDropdown" v-if="$page.props.user.branches.length > 1">
                                                   <span v-for="branch in $page.props.user.branches" :key="branch.id">
-                                                    <a  @click="changeBranch(branch)" class="dropdown-item active" data-img-value="flag-de3" :data-value="branch.shortname" href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> {{branch.shortname}}</a>
+                                                    <a  @click="changeBranch(branch)" class="dropdown-item" data-img-value="flag-de3" :data-value="branch.shortname" href="javascript:void(0);"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-home"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path><polyline points="9 22 9 12 15 12 15 22"></polyline></svg> {{branch.shortname}}</a>
                                                   </span>
                                               </div>
                                           </div>
@@ -44,6 +44,7 @@ export default {
         changeBranch(branch){
             axios.post(route('changeBranch'), branch)
         .then((response) => {
+                localStorage.clear();
                 window.location='';
             })
             .catch(error => {

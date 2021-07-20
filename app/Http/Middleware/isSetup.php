@@ -19,17 +19,22 @@ class isSetup
      */
     public function handle(Request $request, Closure $next)
     {
-        if(Helpers::check_organization_setup()){
-                    $branches = Auth::user()->branch;
-                    if(!Session::has('active_branch') && session('active_branch') == ""){
-                        session(['active_branch' => $branches[0] ]);
-                        session()->save();
-                    }
-            return $next($request);
+        if(Auth::check()){
+                    if(Helpers::check_organization_setup()){
+                        $branches = Auth::user()->branch;
+                        if(count($branches) > 0){
+                            if(!Session::has('active_branch') && session('active_branch') == ""){
+                                session(['active_branch' => $branches[0] ]);
+                                session()->save();
+                            }
+                        }else{
+                            abort(403);
+                        }
+                return $next($request);
 
-        }else{
-
-            return redirect()->route('setup.index')->with('error', 'Please setup your business and branches');
+            }else{
+                return redirect()->route('setup.index')->with('error', 'Please setup your business and branches');
+            }
         }
     }
 }

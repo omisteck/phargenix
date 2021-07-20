@@ -6,15 +6,20 @@ use Inertia\Inertia;
 use App\Models\Sales;
 use Barryvdh\DomPDF\PDF;
 use App\Mail\InvoiceMail;
+use App\Models\Purchase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Mail;
 
 class InvoiceController extends Controller
 {
-    public function show($invoice_number){
-        $sales = Sales::where('invoice_number', $invoice_number)->get();
-
-        return Inertia::render('Invoice/Index', [ 'sales' => $sales]);
+    public function show($invoice_number, Request $request){
+        if($request->has('purchase')){
+            $data = Purchase::where('invoice_number', $invoice_number)->with(['user','supplier', 'branch'])->get();
+            return Inertia::render('Invoice/Purchase', [ 'purchases' => $data]);
+        }else{
+            $data = Sales::where('invoice_number', $invoice_number)->with(['user'])->get();
+            return Inertia::render('Invoice/Sales', [ 'sales' => $data]);
+        }
         // return view('invoice/pdf', [ 'sales' => $Sales]);
 
     }

@@ -60,7 +60,8 @@ class UserController extends Controller
             'phone'  =>     $request->phone,
             'position'  => $request->position,
             'address'  => $request->address,
-            'email'  => $request->email
+            'email'  => $request->email,
+            'organization_id'  => auth()->user()->organization_id
             ]);
 
         $newStaff->assignRole($request->position);

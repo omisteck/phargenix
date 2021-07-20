@@ -50,7 +50,7 @@
                                                             </div>
                                                             <div class="form-group col-md-3">
                                                                 <label for="qty">Qty</label>
-                                                                <input type="number" ref="qty" @change="calTotal" @keyup="calTotal" @blur="calTotal" v-model="sale.qty" class="form-control" id="qty">
+                                                                <input type="number" min="1" ref="qty" @change="calTotal" @keyup="calTotal" @blur="calTotal" v-model="sale.qty" class="form-control" id="qty">
                                                             </div>
                                                             <div class="form-group col-md-3">
                                                                 <label for="sell">Selling Price</label>
@@ -206,7 +206,6 @@ props : ['invoice_number', 'shift', 'products', 'formated'],
 
 created : function(){
     $(document).ready(function(){
-        App.init();
         $('.remove').remove();
     })
 },
@@ -218,6 +217,7 @@ mounted : function(){
     this.cart.discount = this.formated.discount
     this.cart.mode = this.formated.mode
     this.cart.paid = this.formated.paid
+    this.isLoading = false;
 },
 
 components: {

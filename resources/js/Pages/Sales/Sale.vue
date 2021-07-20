@@ -269,11 +269,9 @@ props : ['branchies', 'categories', 'shift', 'products'],
 created : function(){
     this.isLoading = true;
     $(document).ready(function(){
-        App.init();
         $('.remove').remove();
     })
 },
-
 mounted : function(){
     this.cart.invoice = this.invoice_number;
     if(localStorage.getItem("cart") != undefined){
@@ -354,6 +352,7 @@ var items = [];
  items.push(this.sale);
  localStorage.setItem("cart",JSON.stringify(items));
  this.cart.items = JSON.parse(localStorage.getItem("cart"));
+ this.sale = {};
 }
 },
     focusInput(){
