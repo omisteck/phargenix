@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Organization;
+use App\Models\Sales;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -27,7 +28,8 @@ class HomeController extends Controller
      */
     public function index()
     {   
-        return Inertia::render('Dashboard');
+        $transactions = Sales::orderBy('created_at', 'desc')->limit(4)->get();
+        return Inertia::render('Dashboard', ['transactions' => $transactions]);
     }
 
     
