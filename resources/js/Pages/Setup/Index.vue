@@ -28,21 +28,7 @@
                                                     <div class="tab-pane fade show active p-4" id="organization" role="tabpanel" aria-labelledby="organization-tab">
                                                              <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
                                                               <form @submit.prevent="saveBusinessDetails" enctype="multipart/form-data">
-                                                             <div class="form-row mt-2">
-                                                      <div class="form-group col-md-6">
-                                                          <label for="inputEmail4">Logo</label>
-                                                          <div v-if="notEmptyObject(business) === 0">
-                                                            <vue-dropify :multiple="false" v-model="business.newLogo"/>
-                                                          </div>
-                                                          <div v-else>
-                                                            <div style="position: relative;"> <img :src="business.logo" style="width: 30%; display: block" />
-                                                                <a href="#" class="btn btn-md btn-primary " style="position: absolute; top: -0;" @click="changeImage"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-edit-3"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg></a>
-                                                            </div>
-                                                            
-                                                          </div>
-                                                      </div>
-                                                  </div>
-
+                                               
                                                   <div class="form-row mt-2">
                                                       <div class="form-group col-md-6">
                                                           <label for="business_name">Business Name<span class="text-danger"> * </span> </label>
@@ -141,7 +127,7 @@
             <div class="dt--pagination">
                 <div class="dataTables_paginate paging_simple_numbers" id="zero-config_paginate">
                     <ul class="pagination">
-                        <pagination :data="laravelData" @pagination-change-page="getResults">
+                        <pagination :limit=1 :data="laravelData" @pagination-change-page="getResults">
                             <span slot="prev-nav"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -286,7 +272,6 @@
 
 <script>
 import Layout from "../Layout/Layout.vue";
-import VueDropify from 'vue-dropify';
 import VueLoadingButton from 'vue-loading-button';
 import VueElementLoading from "vue-element-loading";
 
@@ -302,9 +287,9 @@ export default {
            pagination : 5,
            search : '',
        },
-      business:{
-        newLogo: '',
-      },
+    //   business:{
+    //     newLogo: '',
+    //   },
       newBranch : {
           name : '',
           shortname: '',
@@ -345,7 +330,6 @@ mounted : function(){
    this.isLoading = false;
 },
 components: {
-    'vue-dropify': VueDropify,
     VueLoadingButton,
     VueElementLoading,
 'layout' : Layout,
@@ -353,9 +337,7 @@ components: {
   },
 
   methods: {
-      notEmptyObject(someObject){
-      return Object.keys(someObject).length
-    },
+     
       getResults(page =1) {
 
                 axios.get('api/branch?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search)
@@ -379,7 +361,7 @@ components: {
         .then((response) => {
                 this.$toast.success(response.data.success);
                 $('#editbranch').modal('hide');
-                this.$inertia.reload();
+                this.getResults();
             })
             .catch(error => {
                 let errors = error.response.data.errors;
@@ -398,8 +380,8 @@ components: {
                 this.isLoading = false;
                 this.$toast.success(response.data.success);
                 this.newBranch= {};
+                this.getResults();
                 $('#createModel').modal('hide');
-                this.$inertia.reload();
             })
             .catch(error => {
                 this.isLoading = false;
@@ -409,9 +391,7 @@ components: {
                 }
             });
     },
-    changeImage(){
-        this.business.logo = '';    
-    },
+    
     saveBusinessDetails() {
 
         if(this.business.name != ''){
@@ -419,7 +399,6 @@ components: {
             axios.post(route('organization.store'), this.business)
             .then((response) => {
                 this.isLoading = false;
-                this.$inertia.reload();
                 this.$toast.success(response.data.success);
             })
              .catch(error => {

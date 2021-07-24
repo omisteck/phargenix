@@ -425,8 +425,8 @@ var items = [];
  this.cart.items = JSON.parse(localStorage.getItem("purchase_cart"));
  this.invoiceSet = true;
  this.supplierSet = true;
- this.purchase.item ={};
- this.purchase.total =0;
+ this.purchase.item = {};
+ this.purchase.total = 0;
  this.$refs.qty = 0;
 }
 },

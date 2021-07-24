@@ -84,14 +84,9 @@ class SalesController extends Controller
     public function create()
     {
         $user = auth()->user();
-        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
+        $products = Helpers::get_product();
         $branchies = Staff::where('user_id', auth()->user()->id)->with('branch');
         $categories = $user->organization->categories;
-        $data = collect();
-        foreach($products as $product){
-            $product["instore"] = Helpers::get_instore_value($product["id"]);
-            $data->push($product);
-        }
 
         if(!Session::has('shift') && session('shift') == ""){
             session(['shift' => Helpers::shift()]);
@@ -104,7 +99,7 @@ class SalesController extends Controller
         // }
 
         
-        return Inertia::render('Sales/Sale', ['products' => $data, 'shift' => session('shift') , 'branchies' => $branchies->get(), 'categories' => $categories]);
+        return Inertia::render('Sales/Sale', ['products' => $products, 'shift' => session('shift') , 'branchies' => $branchies->get(), 'categories' => $categories]);
     }
 
 
@@ -113,19 +108,14 @@ class SalesController extends Controller
     public function old_sales()
     {
         $user = auth()->user();
-        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
-        $data = collect();
-        foreach($products as $product){
-            $product["instore"] = Helpers::get_instore_value($product["id"]);
-            $data->push($product);
-        }
+        $products = Helpers::get_product();
 
         if(!Session::has('shift') && session('shift') == ""){
             session(['shift' => Helpers::shift()]);
             session()->save();
         }
         
-        return Inertia::render('Sales/Old', ['products' => $data, 'shift' => session('shift') ]);
+        return Inertia::render('Sales/Old', ['products' => $products, 'shift' => session('shift') ]);
     }
 
     /**
@@ -203,12 +193,7 @@ class SalesController extends Controller
         $transaction = Sales::where('invoice_number', $sales)->get();
         
         $user = auth()->user();
-        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
-        $data = collect();
-        foreach($products as $product){
-            $product["instore"] = Helpers::get_instore_value($product["id"]);
-            $data->push($product);
-        }
+        $products = Helpers::get_product();
 
         $invoice_number = $transaction[0]->invoice_number;
         $discount = $transaction[0]->invoice_discount;
@@ -236,7 +221,7 @@ class SalesController extends Controller
             'paid' => $paid
         ];
         
-        return Inertia::render('Sales/Edit', ['products' => $data, "invoice_number" => $invoice_number ,'shift' => $transaction[0]->shift, 'formated' => $formated ]);
+        return Inertia::render('Sales/Edit', ['products' => $products, "invoice_number" => $invoice_number ,'shift' => $transaction[0]->shift, 'formated' => $formated ]);
     }
 
     /**

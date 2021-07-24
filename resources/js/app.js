@@ -10,6 +10,7 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 import Toast from "vue-toastification";
 // Import the CSS or use your own!
 import "vue-toastification/dist/index.css";
+import VueElementLoading from "vue-element-loading";
 
 import { CoolSelectPlugin } from 'vue-cool-select'
 import Permissions from './mixins/Permissions';
@@ -26,6 +27,7 @@ InertiaProgress.init()
 Vue.use(VueApexCharts)
 
 Vue.component('apexchart', VueApexCharts)
+Vue.component('VueElementLoading', VueElementLoading)
 
 Vue.prototype.$route = route
 

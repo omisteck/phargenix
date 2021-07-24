@@ -3,8 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\category;
+use App\Models\product;
+use App\Models\Supplier;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Spatie\Permission\Models\Permission;
 
@@ -13,6 +16,32 @@ class TestController extends Controller
     //
 
     public function index(Request $request){
+
+
+         $suppliers = DB::table('suppliers_old')->where('status', 1)->get();
+        foreach($suppliers as $supplier){
+            Supplier::create([
+                'id' => $supplier->id,
+                'name' => $supplier->name,
+                'contact' => '09064629981',
+                'organization_id' => 1,
+            ]);
+        };
+
+        // $products = DB::table('products_old')->where('status', 1)->get();
+        // foreach($products as $product){
+        //     product::create([
+        //         'id' => $product->id,
+        //         'name' => $product->name,
+        //         'category_id' => 1,
+        //         'organization_id' => 1,
+        //         'branch_id' => $product->branch,
+        //         'cost_price' => $product->cost,
+        //         'selling_price' => $product->selling,
+        //     ]);
+        // };
+
+
 
         // $role = Role::create(['name' => 'cashier']);
 

@@ -56,19 +56,31 @@ class HandleInertiaRequests extends Middleware
                 
                 if($request->user()){
                     $branches = $request->user()->branch;
-                    if(!Session::has('active_branch') && session('active_branch') == ""){
-                        session(['active_branch' => $branches[0] ]);
-                        session()->save();
+                    if($branches->count() < 1 && $request->user()->level =='admin'){
+                        return null;
+                    }elseif($branches->count() > 0){
+                        if(!Session::has('active_branch') && session('active_branch') == ""){
+                            session(['active_branch' => $branches[0] ]);
+                            session()->save();
+                        }
+                        return $branches;
                     }
-                    return $branches;
+                    
                 }else{
                     return null;
                 }
             },
 
-            'user.branch.active' => fn () => Session::has('active_branch')
-                ? session('active_branch')
-                : abort(404),
+            'user.branch.active' => function(){
+                global $request;
+                if(Session::has('active_branch')){
+                    return session('active_branch');
+                }elseif(!Session::has('active_branch') && $request->user()->level =='admin' ){
+                    return null;
+                }else{
+                    return abort(404);
+                }
+            } 
         ]);
     }
 }

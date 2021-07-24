@@ -8,6 +8,7 @@ use App\Helpers\Helpers;
 use App\Models\product;
 use App\Models\Reconcile;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class ReconcileController extends Controller
 {
@@ -18,12 +19,9 @@ class ReconcileController extends Controller
     }
 
     public function index(){
-        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
-        $data = collect();
-        foreach($products as $product){
-            $product["instore"] = Helpers::get_instore_value($product["id"]);
-            $data->push($product);
-        }
+        
+        $products = Helpers::get_product();
+        
         return Inertia::render('product/Reconcile', ['products' => $products]);
     }
 

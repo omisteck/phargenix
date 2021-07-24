@@ -50,31 +50,12 @@ class OrganizationController extends Controller
             'name' => 'required|string',
         ]);
 
-        if($request->newLogo != ''){
-            if (!str_contains($request->newLogo[0], '/images/logos/')){
-                $old_logo = optional(Auth::user()->organization)->logo;
 
-                if($old_logo != ''){
-                    File::delete(public_path($old_logo));
-                };
-                $pdate = $request->name.strtotime(date('y-m-d h:i:s')).'.png';
-                $logo_path = '/images/profile/'.$pdate;
-                Image::make($request->newLogo[0])->save(public_path('images/profile/').$pdate);
-           }
-        }
-        if(!isset($logo_path)){
             $data = [
                 'name' => $request->name,
                 'user_id' => auth()->user()->id
             ];
-        }else{
-            $data = [
-                'name' => $request->name,
-                'logo' => $logo_path,
-                'user_id' => auth()->user()->id
-            ];
-        }
-
+       
         if(Organization::updateOrCreate([
             'user_id' => auth()->user()->id
         ],$data)){

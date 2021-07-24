@@ -60,7 +60,7 @@ class User extends Authenticatable
      */
     public function organization()
     {
-        return $this->hasOne(Organization::class, 'id', "organization_id");
+        return $this->hasOne(Organization::class, "id", "organization_id");
     }
     
     public function staff()

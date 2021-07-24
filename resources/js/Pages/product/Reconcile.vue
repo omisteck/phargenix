@@ -92,7 +92,7 @@
             <div class="dt--pagination">
                 <div class="dataTables_paginate paging_simple_numbers" id="zero-config_paginate">
                     <ul class="pagination">
-                        <pagination :data="laravelData" @pagination-change-page="getResults">
+                        <pagination :limit=1 :data="laravelData" @pagination-change-page="getResults">
                             <span slot="prev-nav"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -259,7 +259,6 @@
 <script>
 import Layout from "../Layout/Layout.vue";
 import { Inertia } from '@inertiajs/inertia'
-import VueElementLoading from "vue-element-loading";
 import { CoolSelect } from "vue-cool-select";
 import axios from 'axios';
 
@@ -285,13 +284,11 @@ props: ['products'],
 
 components: {
 'layout' : Layout,
-VueElementLoading,
 CoolSelect,
     
   },
   created : function () {
       this.isLoading = true;
-      
      $('head').append( $('<link rel="stylesheet" id="table" class="remove" type="text/css" />').attr('href', '/dashboard/plugins/table/datatable/dt-global_style.css') );
 },
 
@@ -348,11 +345,18 @@ editRecon(recon){
 
 },
       getResults(page =1) {
-
-                axios.get('/api/reconcile?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search)
+          this.isLoading = true;
+                axios.get('/get/products')
+                .then(response => {
+                    this.products = response.data.products;
+                    axios.get('/api/reconcile?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search)
                     .then( response => {
                         this.laravelData = response.data;
+                        this.isLoading = false;
                     });
+                })
+
+                
             },
 
 

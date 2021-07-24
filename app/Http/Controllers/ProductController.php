@@ -31,15 +31,10 @@ class ProductController extends Controller
         $this->middleware(['permission:Manage Product'])->except([ 'ledger_search' , 'ledger']);
     }
 
-    public function products(){
-        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
-        $data = collect();
-        foreach($products as $product){
-            $product["instore"] = Helpers::get_instore_value($product["id"]);
-            $data->push($product);
-        }
+    public function products(Request $request){
+        $products = Helpers::get_product();
 
-        return response()->json(['products' => $data]);
+        return response()->json(['products' => $products]);
     }
 
     public function index()
@@ -59,12 +54,8 @@ class ProductController extends Controller
     public function search(Request $request){
         
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
-        
-        if(auth()->user()->level == 'admin'){
-            $products = auth()->user()->organization->products()->with(['branch','category']);
-        }else{
+
             $products = product::where('branch_id', Helpers::active_branch()['id'])->with(['branch','category']);
-        }
 
         if($request->has('search') && $request->search != ''){
             $products->where('name', 'LIKE', '%'.$request->search .'%')
@@ -189,7 +180,7 @@ class ProductController extends Controller
 
 
     public function branchProduct($branch){
-        $products = product::where('branch_id',$branch)->get();
+        $products = Helpers::get_product($branch);
         return response()->json(['products' => $products]);
     }
 

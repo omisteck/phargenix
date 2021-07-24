@@ -44,6 +44,7 @@
                                                     </tr>
                 </thead>
                 <tbody>
+                    <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
                     
  <tr v-for="supplier in laravelData.data" :key="supplier.id">
  <td>{{ supplier.name }}</td>
@@ -86,7 +87,7 @@
             <div class="dt--pagination">
                 <div class="dataTables_paginate paging_simple_numbers" id="zero-config_paginate">
                     <ul class="pagination">
-                        <pagination :data="laravelData" @pagination-change-page="getResults">
+                        <pagination :limit=1 :data="laravelData" @pagination-change-page="getResults">
                             <span slot="prev-nav"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -234,6 +235,7 @@ export default {
             sales_rep_contact : ''
         },
         edit : {},
+        isLoading : false,
     };
   },
 
@@ -256,10 +258,11 @@ created : function () {
   methods: {
 
       getResults(page =1) {
-
+            this.isLoading = true;
                 axios.get('api/suppliers?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search)
                     .then( response => {
                         this.laravelData = response.data;
+                        this.isLoading = false;
                     });
             },
 

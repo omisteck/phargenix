@@ -40,14 +40,8 @@ class PurchaseController extends Controller
         $branchies = Staff::where('user_id', auth()->user()->id)->with('branch');
         $suppliers = $user->organization->suppliers;
         $categories = $user->organization->categories;
-        $products = product::where('branch_id', Helpers::active_branch()['id'])->get();
-        $data = collect();
-        foreach($products as $product){
-            $product["instore"] = Helpers::get_instore_value($product["id"]);
-            $data->push($product);
-        }
-
-        return Inertia::render('Purchase/Purchase', ['products' => $data, 'suppliers' => $suppliers, 'branchies' => $branchies->get(), 'categories' => $categories]);
+        $products = Helpers::get_product();
+        return Inertia::render('Purchase/Purchase', ['products' => $products, 'suppliers' => $suppliers, 'branchies' => $branchies->get(), 'categories' => $categories]);
     }
 
 
@@ -137,14 +131,8 @@ class PurchaseController extends Controller
         $user = auth()->user();
         $branchies = Staff::where('user_id', auth()->user()->id)->with('branch');
         $categories = $user->organization->categories;
-        $products = $user->organization->products;
+        $products = Helpers::get_product();
         $suppliers = $user->organization->suppliers;
-        $data = collect();
-        foreach($products as $product){
-            $product["instore"] = Helpers::get_instore_value($product["id"]);
-            $data->push($product);
-        }
-
 
         $items = collect();
 
@@ -162,7 +150,7 @@ class PurchaseController extends Controller
             $items = $items->push($formated);
         }
 
-        return Inertia::render('Purchase/Edit', ['products' => $data, 'suppliers' => $suppliers, 'data' => $items,'branchies' => $branchies->get(), 'categories' => $categories ]);
+        return Inertia::render('Purchase/Edit', ['products' => $products, 'suppliers' => $suppliers, 'data' => $items,'branchies' => $branchies->get(), 'categories' => $categories ]);
     }
 
     /**

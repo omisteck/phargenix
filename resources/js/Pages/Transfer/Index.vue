@@ -109,7 +109,7 @@
             <div class="dt--pagination">
                 <div class="dataTables_paginate paging_simple_numbers" id="zero-config_paginate">
                     <ul class="pagination">
-                        <pagination :data="laravelData" @pagination-change-page="getResults">
+                        <pagination :limit=1 :data="laravelData" @pagination-change-page="getResults">
                             <span slot="prev-nav"><svg
                                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                     fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -238,7 +238,6 @@
 <script>
 import Layout from "../Layout/Layout.vue";
 import { Inertia } from '@inertiajs/inertia'
-import VueElementLoading from "vue-element-loading";
 import { CoolSelect } from "vue-cool-select";
 import axios from 'axios';
 
@@ -274,7 +273,6 @@ props: ['branchies','all_branchies'],
 
 components: {
 'layout' : Layout,
-VueElementLoading,
 CoolSelect,
     
   },
@@ -327,6 +325,7 @@ editTransfer(transfer){
 },
 
         Update(){
+            this.isLoading = true;
         axios.put(route('reconcile.update', this.edit.id), { details: this.edit, data: this.data })
         .then((response) => {
                 this.edit = {};
@@ -345,12 +344,14 @@ editTransfer(transfer){
 
 },
       getResults(page =1) {
+          this.isLoading = true;
                 axios.get('/get/products')
                 .then(response => {
                     this.products = response.data.products;
                     axios.get('/api/transfer?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search + "&to_branch=" + this.filter.to_branch + "&date=" + this.filter.date)
                     .then( response => {
                         this.laravelData = response.data;
+                        this.isLoading = false;
                     });
                 })
                 

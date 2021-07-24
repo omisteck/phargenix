@@ -1,50 +1,12 @@
 <template>
   <div class="row">
-    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 layout-spacing">
+    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-6 col-12 layout-spacing" v-if="$page.props.user.access.position != 'cashier'">
+      <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
       <div class="widget widget-three">
         <div class="widget-heading">
           <h5 class="">Summary</h5>
 
-          <div class="task-action">
-            <div class="dropdown">
-              <a
-                class="dropdown-toggle"
-                href="#"
-                role="button"
-                id="pendingTask"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="feather feather-more-horizontal"
-                >
-                  <circle cx="12" cy="12" r="1"></circle>
-                  <circle cx="19" cy="12" r="1"></circle>
-                  <circle cx="5" cy="12" r="1"></circle>
-                </svg>
-              </a>
-
-              <div
-                class="dropdown-menu dropdown-menu-right"
-                aria-labelledby="pendingTask"
-                style="will-change: transform"
-              >
-                <a class="dropdown-item" href="javascript:void(0);"
-                  >View Report</a
-                >
-              </div>
-            </div>
-          </div>
+       
         </div>
         <div class="widget-content">
           <div class="order-summary">
@@ -73,8 +35,8 @@
 
                 <div class="w-summary-details">
                   <div class="w-summary-info">
-                    <h6>Income <span class="summary-count">$92,600 </span></h6>
-                    <p class="summary-average">90%</p>
+                    <h6>Income <span class="summary-count">&#8358;{{ stat.sales }} </span></h6>
+                    <p class="summary-average">this month</p>
                   </div>
                 </div>
               </div>
@@ -103,8 +65,8 @@
                 </div>
                 <div class="w-summary-details">
                   <div class="w-summary-info">
-                    <h6>Profit <span class="summary-count">$37,515</span></h6>
-                    <p class="summary-average">65%</p>
+                    <h6>Profit <span class="summary-count">&#8358;{{ stat.sales - stat.expenses}}</span></h6>
+                    <p class="summary-average">this month</p>
                   </div>
                 </div>
               </div>
@@ -138,8 +100,8 @@
                 </div>
                 <div class="w-summary-details">
                   <div class="w-summary-info">
-                    <h6>Expenses <span class="summary-count">$55,085</span></h6>
-                    <p class="summary-average">80%</p>
+                    <h6>Expenses <span class="summary-count">&#8358;{{ stat.expenses }}</span></h6>
+                    <p class="summary-average">this month</p>
                   </div>
                 </div>
               </div>
@@ -149,49 +111,48 @@
       </div>
     </div>
 
+
+     <div class="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-12 layout-spacing" v-if="$page.props.user.access.position == 'cashier'">
+       <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
+      <div class="widget widget-table-one">
+        <div class="widget-heading">
+          <h5 class="">Expenses</h5>
+          <div class="task-action">
+          </div>
+        </div>
+
+        <div class="widget-content">
+      
+          <div class="transactions-list t-info" v-for="expense in expenses" :key="expense.id">
+            <div class="t-item">
+              <div class="t-company-name">
+                <div class="t-icon">
+                  <div class="avatar avatar-xl">
+                    <span class="avatar-title">SP</span>
+                  </div>
+                </div>
+                <div class="t-name">
+                  <h4>{{ expense.description }}</h4>
+                  <p class="meta-date">{{ expense.created_at | moment("ddd, MMM Do YYYY") }}</p>
+                </div>
+              </div>
+              <div class="t-rate rate-inc">
+                <p><span>&#8358;{{ transaction.amount }}</span></p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+
     <div class="col-xl-5 col-lg-6 col-md-6 col-sm-6 col-12 layout-spacing">
+      <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
       <div class="widget widget-table-one">
         <div class="widget-heading">
           <h5 class="">Transactions</h5>
           <div class="task-action">
-            <div class="dropdown">
-              <a
-                class="dropdown-toggle"
-                href="#"
-                role="button"
-                id="pendingTask"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="feather feather-more-horizontal"
-                >
-                  <circle cx="12" cy="12" r="1"></circle>
-                  <circle cx="19" cy="12" r="1"></circle>
-                  <circle cx="5" cy="12" r="1"></circle>
-                </svg>
-              </a>
-
-              <div
-                class="dropdown-menu dropdown-menu-right"
-                aria-labelledby="pendingTask"
-                style="will-change: transform"
-              >
-                <a class="dropdown-item" href="javascript:void(0);"
-                  >View Report</a
-                >
-              </div>
-            </div>
           </div>
         </div>
 
@@ -206,7 +167,7 @@
                   </div>
                 </div>
                 <div class="t-name">
-                  <h4>{{ transaction.invoice_number }}</h4>
+                  <h4><a :href="'/invoices/'+ transaction.invoice_number" >{{ transaction.invoice_number }} </a> </h4>
                   <p class="meta-date">{{ transaction.created_at | moment("ddd, MMM Do YYYY") }}</p>
                 </div>
               </div>
@@ -225,47 +186,12 @@
         <div class="widget-heading">
           <h5 class="">Revenue</h5>
           <div class="task-action">
-            <div class="dropdown">
-              <a
-              class="dropdown-toggle"
-                href="#"
-                role="button"
-                id="pendingTask"
-                data-toggle="dropdown"
-                aria-haspopup="true"
-                aria-expanded="false"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  stroke-width="2"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  class="feather feather-more-horizontal"
-                >
-                  <circle cx="12" cy="12" r="1"></circle>
-                  <circle cx="19" cy="12" r="1"></circle>
-                  <circle cx="5" cy="12" r="1"></circle>
-                </svg>
-              </a>
-              <div
-                class="dropdown-menu dropdown-menu-right"
-                aria-labelledby="pendingTask"
-                style="will-change: transform"
-              >
-                <a class="dropdown-item" href="javascript:void(0);">Weekly</a>
-                <a class="dropdown-item" href="javascript:void(0);">Monthly</a>
-                <a class="dropdown-item" href="javascript:void(0);">Yearly</a>
-              </div>
-            </div>
+            <p>Data 6 month</p>
           </div>
         </div>
 
         <div class="widget-content">
+          <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
           <apexchart
             type="area"
             :options="options"
@@ -279,6 +205,7 @@
 
 <script>
 import Layout from "./Layout/Layout.vue";
+import VueElementLoading from "vue-element-loading";
 
 export default {
   // Using the shorthand
@@ -286,6 +213,7 @@ export default {
 
   data: function () {
     return {
+      isLoading: false,
       options: {
         chart: {
           fontFamily: "Quicksand, sans-serif",
@@ -376,7 +304,7 @@ export default {
           ],
         },
         subtitle: {
-          text: "$10,840",
+          text: this.profit,
           align: "left",
           margin: 0,
           offsetX: 95,
@@ -512,48 +440,32 @@ export default {
             },
           },
         ],
-        labels: [
-          "Jan",
-          "Feb",
-          "Mar",
-          "Apr",
-          "May",
-          "Jun",
-        ],
+        labels: this.mouthLabel,
       },
       series: [
         {
           name: "Income",
-          data: [
-            16800,
-            16800,
-            15500,
-            17800,
-            15500,
-            17000,
-          ],
+          data: this.mouthvalue,
         },
         {
           name: "Expenses",
-          data: [
-            16500,
-            17500,
-            16200,
-            17300,
-            16000,
-            19500,
-            16000,
-            17000,
-            16000,
-            19000,
-            18000,
-            19000,
-          ],
+          data: this.expenses_data,
         },
       ],
     };
   },
+  props: ["mouthLabel", "stat", "mouthvalue", 'transactions', "expenses_data", "profit", "expenses"],
 
-  props: ["name", "newClass", 'transactions'],
+
+created : function(){
+    this.isLoading = true;
+},
+mounted : function(){
+    this.isLoading = false;
+},
+components: {
+VueElementLoading,
+
+  },
 };
 </script>

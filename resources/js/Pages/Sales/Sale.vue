@@ -231,7 +231,6 @@
 import Layout from "../Layout/Layout.vue";
 import { Inertia } from '@inertiajs/inertia';
 import { CoolSelect } from "vue-cool-select";
-import VueElementLoading from "vue-element-loading";
 
 export default {
   // Using the shorthand
@@ -286,8 +285,6 @@ mounted : function(){
 components: {
 'layout' : Layout,
     CoolSelect,
-VueElementLoading,
-
   },
 
   methods: {

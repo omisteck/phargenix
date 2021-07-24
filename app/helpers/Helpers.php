@@ -2,13 +2,14 @@
 
 namespace App\Helpers;
 
-use App\Models\Purchase;
-use App\Models\Reconcile;
-use App\Models\Sales;
-use App\Models\Sales_Return;
-use App\Models\Transfer;
 use Carbon\Carbon;
 use Keygen\Keygen;
+use App\Models\Sales;
+use App\Models\Purchase;
+use App\Models\Transfer;
+use App\Models\Reconcile;
+use App\Models\Sales_Return;
+use Illuminate\Support\Facades\DB;
 
 class Helpers{
 
@@ -36,6 +37,46 @@ class Helpers{
         $return_sales = Sales_Return::where("data->id", $product)->sum("qty");
         // dd($sales);
         return (($purchases + $transfer_in + $reconcile_in) -( $transfer_out + $reconcile_out + $sales ));
+    }
+
+    static public function get_product($branch = NULL){
+        if(isset($branch) && $branch != NULL ){
+            $branchHolder = $branch;
+        }else{
+            $branchHolder = session('active_branch')['id'];
+
+        }
+        $sql = "SELECT p.*, 
+        (COALESCE(pc.num,0) + COALESCE(ti.num,0) + COALESCE(ri.num,0)) - (COALESCE(s.num,0) + COALESCE(ro.num,0) + COALESCE(tf.num,0)) as instore
+        FROM products P 
+        LEFT JOIN ( SELECT SUM(sales.qty) num, JSON_EXTRACT(sales.data, '$.\"id\"') product
+                    FROM sales
+                    GROUP BY product
+                  ) s ON p.id = s.product
+        LEFT JOIN ( SELECT SUM(purchases.qty) num, JSON_EXTRACT(purchases.product, '$.\"id\"') product
+                    FROM purchases
+                    GROUP BY product
+                  ) pc ON p.id = pc.product
+        LEFT JOIN ( SELECT SUM(transfers.qty) num, JSON_EXTRACT(transfers.to_product, '$.\"id\"') product
+                    FROM transfers
+                    GROUP BY product
+                  ) ti ON p.id = ti.product
+        LEFT JOIN ( SELECT SUM(transfers.qty) num, JSON_EXTRACT(transfers.from_product, '$.\"id\"') product
+                    FROM transfers
+                    GROUP BY product
+                  ) tf ON p.id = tf.product
+        LEFT JOIN ( SELECT SUM(reconciles.qty) num, JSON_EXTRACT(reconciles.data, '$.\"id\"') product
+                    FROM reconciles Where reconciles.type = 'in'
+                    GROUP BY product
+                  ) ri ON p.id = ri.product
+        LEFT JOIN ( SELECT SUM(reconciles.qty) num , JSON_EXTRACT(reconciles.data, '$.\"id\"') product
+                    FROM reconciles Where reconciles.type = 'out'
+                    GROUP BY product
+                  ) ro ON p.id = ro.product
+        WHERE p.branch_id = ". $branchHolder;
+
+        $products = DB::select((DB::raw($sql)));
+        return $products;
     }
 
     static protected function generateNumericKey()
