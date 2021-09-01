@@ -49,6 +49,9 @@ Route::middleware(['auth','isSetup'])->group(function () {
     
         Route::resource('user', UserController::class);
         Route::get('user/branches/{user}', [StaffController::class, 'user_branches'])->name('staff.branches');
+        Route::post('login/as/staff', [StaffController::class, 'loginAs'])->name('login.as');
+        Route::post('save/permission', [StaffController::class, 'permission'])->name('permission.save');
+        
     
         Route::resource('suppliers', SupplierController::class);
         Route::get('api/suppliers', [SupplierController::class, 'search'])->name('supplier.search');
@@ -59,7 +62,8 @@ Route::middleware(['auth','isSetup'])->group(function () {
         Route::resource('products', ProductController::class);
         Route::get('api/products', [ProductController::class, 'search'])->name('products.search');
         Route::get('/get/products', [ProductController::class, 'products'])->name('products.list');
-        Route::get('api/branch/products/{branch}', [ProductController::class, 'branchProduct'])->name('branchProduct');
+        Route::get('/search/products', [ProductController::class, 'product'])->name('products.bysearch');
+        Route::get('api/branch/products', [ProductController::class, 'branchProduct'])->name('branchProduct');
     
         Route::group(['middleware' => ['permission:Ledger Card']], function () {
             Route::get('ledger/products', [ProductController::class, 'ledger'])->name('ledger');
@@ -113,6 +117,7 @@ Route::middleware(['auth','isSetup'])->group(function () {
         Route::put('remit/{remit}', [RemitController::class, 'update'])->name('remit.update');
         Route::get('api/remit', [RemitController::class, 'search'])->name('expenses.search');
 
+        Route::get('print/sales/{invoice_number}', [SalesController::class, 'print'])->name('printing');
 });
 
 Route::get('/test', [App\Http\Controllers\TestController::class, 'index'])->name('test');

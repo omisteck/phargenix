@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Models\Sales;
 use App\Models\Staff;
 use App\Helpers\Helpers;
+use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -14,12 +15,12 @@ class BreakdownController extends Controller
 {
     public function __construct()
     {
-        $this->middleware(['permission:Manage Sales']);
+        $this->middleware(['permission:Remit']);
     }
     
     public function index(){
         // $staffs = Staff::where('branch_id', Helpers::active_branch()['id'])->with(['user'])->get();
-        $staffs = auth()->user()->organization->staffs()->with(['user'])->get();
+        $staffs = auth()->user()->organization->staffs()->with(['user','branch'])->get();
         return Inertia::render('Sales/Breakdown', [ 'staffs' => $staffs ]);
     }
 
@@ -38,13 +39,14 @@ class BreakdownController extends Controller
         }
         // dd($sales->get());
         $sales = $sales->orderBy('created_at','desc')->get()->groupBy(function($item) {
-            return $item->created_at->format('Y-m-d');
+            return Carbon::parse($item->created_at)->format('Y-m-d');
        });
-
+       
        foreach($sales as $key => $sale){
         $sale['count'] = $sale->count();
         $sale['date'] = $key;
-        $sale['grandTotal'] = number_format($sale->sum('invoice_total'), 2  );
+        $sale['grandTotal'] = number_format($sale->sum('total'), 2  );
+
     }
 
        $page = LengthAwarePaginator::resolveCurrentPage();

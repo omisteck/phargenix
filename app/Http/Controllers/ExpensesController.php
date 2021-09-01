@@ -75,7 +75,7 @@ class ExpensesController extends Controller
 
         }
         
-    	$expenses = $expenses->paginate($pagination);
+    	$expenses = $expenses->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($expenses);
     }
 

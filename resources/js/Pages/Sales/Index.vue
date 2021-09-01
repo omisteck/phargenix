@@ -67,7 +67,8 @@
                                                                 Action
                                                                 </button>
                                                                 <div class="dropdown-menu" aria-labelledby="btnGroupVerticalDrop2">
-                                                                    <inertia-link class="dropdown-item" :href="'/invoices/'+ sale.invoice_number">Print Recipt</inertia-link>
+                                                                    <a class="dropdown-item" :href="'/print/sales/'+ sale.invoice_number">Print Recipt</a>
+                                                                    <inertia-link class="dropdown-item" :href="'/invoices/'+ sale.invoice_number">View Recipt</inertia-link>
                                                                     <inertia-link class="dropdown-item" :href="'/sales/'+sale.invoice_number+'/edit'">Edit</inertia-link>
                                                                     <a class="dropdown-item text-danger " @click="deleteSale(sale)" href="#">Delete</a>
                                                                 </div>
@@ -163,10 +164,14 @@ VueElementLoading,
   },
   created : function () {
       this.isLoading = true;
+     
      $('head').append( $('<link rel="stylesheet" id="table" class="remove" type="text/css" />').attr('href', '/dashboard/plugins/table/datatable/dt-global_style.css') );
 },
 
 mounted : function(){
+    $(document).ready(function() {
+            App.init();
+      });
    this.getResults();
    this.isLoading = false;
 },

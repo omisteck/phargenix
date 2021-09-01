@@ -56,7 +56,7 @@ class TransferController extends Controller
 
         }
         
-    	$transfers = $transfers->paginate($pagination);
+    	$transfers = $transfers->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($transfers);
     }
 

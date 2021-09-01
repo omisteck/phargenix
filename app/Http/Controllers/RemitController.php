@@ -63,10 +63,10 @@ class RemitController extends Controller
             'date' => 'required|date'
         ]);
 
-        $sales['cash'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'cash')->sum('invoice_total'));
-        $sales['transfer'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'transfer')->sum('invoice_total'));
-        $sales['pos'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'pos')->sum('invoice_total'));
-        $sales['total'] = Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->sum('invoice_total');
+        $sales['cash'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'cash')->sum('total'));
+        $sales['transfer'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'transfer')->sum('total'));
+        $sales['pos'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'pos')->sum('total'));
+        $sales['total'] = Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->sum('total');
 
         return response()->json($sales);
     }
@@ -85,7 +85,7 @@ class RemitController extends Controller
 
         $count = Remit::where('user_id', $request->staff)->whereDate('date', $request->date)->get();
 
-        if($count->count() > 0){
+        if(count($count) > 0){
             return response()->json(['errors' => [['Staff sales already remitted for that date']]], 428);
         }
 
@@ -102,7 +102,7 @@ class RemitController extends Controller
             'approve_by' => auth()->user()->id,
         ]);
 
-       if($count->count > 0){
+       if(count($count) > 0){
             return response()->json(['success' => 'Staff Sales remitted successfully'], 200);
         } 
     }

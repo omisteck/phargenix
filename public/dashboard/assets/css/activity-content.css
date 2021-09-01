@@ -528,4 +528,8 @@ body .col-right-content .col-right-content-container .ps__rail-y.ps--clicking {
     #content .col-right {
         width: 315px;
     }
+
+    #content {
+        margin-top: 45px;
+    }
 }

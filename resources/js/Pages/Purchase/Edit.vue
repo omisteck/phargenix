@@ -45,6 +45,7 @@
       :items="products"
       :placeholder="purchase.item ? '' : 'Select product'"
       item-text="name"
+      @search="onSearch"
       @select="focusInput()"
     />
                                                         </div>
@@ -63,7 +64,8 @@
                                                             </div>
                                                             <div class="form-group col">
                                                                 <label for="sell">Selling Price</label>
-                                                                <input type="number" required v-model="purchase.item.selling_price"  class="form-control" id="sell">
+                                                                <input v-if="purchase.item" type="number" required v-model="purchase.item.selling_price"  class="form-control" id="sell">
+                                                                <input v-else type="number" required value="0"  class="form-control" id="sell">
                                                             </div>
 
                                                             <div class="form-group col">
@@ -261,10 +263,11 @@ export default {
   // Using the shorthand
 //   layout: Layout,
 
-props : ['branchies', 'categories', 'suppliers', 'products', 'data'],
+props : ['branchies', 'categories', 'suppliers', 'data'],
 
   data: function () {
     return {
+        products: [],
         product : {
             name : '',
             category_id : '',
@@ -313,6 +316,15 @@ components: {
   },
 
   methods: {
+      onSearch(search){
+        const lettersLimit = 2;
+        if (search.length > lettersLimit) {
+            axios.get('/search/products?product='+search+'&branch=true' )
+            .then( response => {
+                this.products = response.data;
+            });
+        }
+    },
       enableChange(){
           this.invoiceSet = false;
           this.changeInvoice = false;

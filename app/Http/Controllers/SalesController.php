@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use Carbon\Carbon;
 use Keygen\Keygen;
 use Inertia\Inertia;
 use App\Models\Sales;
 use App\Models\Staff;
 use App\Models\Branch;
-use App\Helpers\Helpers;
 use App\Models\product;
-use Carbon\Carbon;
+use App\Helpers\Helpers;
+use PDF;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
@@ -24,7 +25,7 @@ class SalesController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['permission:Manage Product'])->except(['invoice_number', 'create', 'old_sales','store']);
+        $this->middleware(['permission:Manage Product'])->except(['invoice_number', 'print','create', 'old_sales','store']);
     }
 
 
@@ -39,6 +40,16 @@ class SalesController extends Controller
         }
         
         return response()->json(['invoice' => session('invoice'),'used_invoice' => session('used_invoice') ], 200);
+    }
+
+    public function print($invoice_number){
+        $sales = Sales::where('invoice_number', $invoice_number)->get();
+        // dd($sales);
+        $pdf = PDF::loadView('pdf.print', ['Sales' => $sales], [], [
+            'format' => [72, 236],
+        ]);
+		return $pdf->stream('recipt.pdf');
+
     }
 
     public function index()
@@ -84,7 +95,7 @@ class SalesController extends Controller
     public function create()
     {
         $user = auth()->user();
-        $products = Helpers::get_product();
+        // $products = Helpers::get_product();
         $branchies = Staff::where('user_id', auth()->user()->id)->with('branch');
         $categories = $user->organization->categories;
 
@@ -99,7 +110,7 @@ class SalesController extends Controller
         // }
 
         
-        return Inertia::render('Sales/Sale', ['products' => $products, 'shift' => session('shift') , 'branchies' => $branchies->get(), 'categories' => $categories]);
+        return Inertia::render('Sales/Sale', ['shift' => session('shift') , 'branchies' => $branchies->get(), 'categories' => $categories]);
     }
 
 
@@ -108,14 +119,13 @@ class SalesController extends Controller
     public function old_sales()
     {
         $user = auth()->user();
-        $products = Helpers::get_product();
 
         if(!Session::has('shift') && session('shift') == ""){
             session(['shift' => Helpers::shift()]);
             session()->save();
         }
         
-        return Inertia::render('Sales/Old', ['products' => $products, 'shift' => session('shift') ]);
+        return Inertia::render('Sales/Old', ['shift' => session('shift') ]);
     }
 
     /**
@@ -193,7 +203,6 @@ class SalesController extends Controller
         $transaction = Sales::where('invoice_number', $sales)->get();
         
         $user = auth()->user();
-        $products = Helpers::get_product();
 
         $invoice_number = $transaction[0]->invoice_number;
         $discount = $transaction[0]->invoice_discount;
@@ -221,7 +230,7 @@ class SalesController extends Controller
             'paid' => $paid
         ];
         
-        return Inertia::render('Sales/Edit', ['products' => $products, "invoice_number" => $invoice_number ,'shift' => $transaction[0]->shift, 'formated' => $formated ]);
+        return Inertia::render('Sales/Edit', ["invoice_number" => $invoice_number ,'shift' => $transaction[0]->shift, 'formated' => $formated ]);
     }
 
     /**

@@ -338,10 +338,10 @@ getData(){
         .then((response) => {
                 this.remit = {};
                 this.show = false;
-                this.getResults();
-                this.isLoading = false;
-                $('#createModel').modal('hide');
                 this.$toast.success(response.data.success);
+                this.getResults();
+                $('#createModel').modal('hide');
+                this.isLoading = false;
             })
             .catch(error => {
                 this.isLoading = false;

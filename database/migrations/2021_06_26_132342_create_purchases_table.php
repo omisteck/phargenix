@@ -24,6 +24,7 @@ class CreatePurchasesTable extends Migration
             $table->integer('total');
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->enum('settlement', ['true','false'])->default('false');
+            $table->enum('old', ['true','false'])->default('false');
             $table->timestamps();
         });
     }

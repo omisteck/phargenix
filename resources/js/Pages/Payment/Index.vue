@@ -161,9 +161,8 @@
                                                             <select id="mode" class="form-control d-inline-block" v-model="payment.mode" required>
                                                                 <option value='' disabled>Select Payment Mode</option>
                                                                 <option value="Cash">Cash</option>
-                                                                <option value="Bank Deposit">Bank Deposit</option>
+                                                                <option value="Cheque">Cheque</option>
                                                                 <option value="Transfer">Transfer</option>
-                                                                <option value="Others">Others</option>
                                                             </select>
                                                         </div>
                                                     </div>

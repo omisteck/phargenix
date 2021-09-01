@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Permission\Models\Permission;
 
 class StaffController extends Controller
 {
@@ -37,7 +38,32 @@ class StaffController extends Controller
             $branches = Auth::user()->branch->pluck('name');
             $roles = Role::where('name', '!=', 'manager')->get();
         }
-        return Inertia::render("Staff/Index", ['branches' => $branches, 'roles' => $roles ]);
+        $permissions = Permission::all();
+        return Inertia::render("Staff/Index", ['branches' => $branches, 'roles' => $roles, 'permissions' => $permissions  ]);
+    }
+
+    public function loginAs(Request $request)
+    {   
+        if(!$request->has('user_type')){
+            session(['admin' => auth()->user()->id ]);
+            session()->save();
+        }else{
+            session()->forget('admin');
+        }
+
+        Auth::loginUsingId($request->user_id);
+    }
+
+    public function permission(Request $request)
+    {   
+        $this->validate($request, [
+            'user' => 'required|array',
+            'access' => 'array'
+        ]);
+        
+        DB::table('model_has_permissions')->where('model_id', $request->user['id'])->delete();
+        User::find($request->user['id'])->syncPermissions($request->access);
+        return response()->json(['success' => 'Permission updated successfully'],200);
     }
 
 

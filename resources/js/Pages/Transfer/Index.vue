@@ -169,6 +169,9 @@
                         :placeholder="transfer.from ? '' : 'Select product'"
                         item-text="name" 
                         :required= "true"
+                        @search="onSearch"
+                        disable-filtering-by-search
+                        @select="focusInput()"
                         />
                     
                    </div>
@@ -205,6 +208,8 @@
                         :items="products2"
                         :placeholder="transfer.to ? '' : 'Select product'"
                         item-text="name"
+                        disable-filtering-by-search
+                        @search="loadProduct2"
                         />
                     
                    </div>
@@ -288,15 +293,24 @@ mounted : function(){
 },
 
   methods: {
-      
-loadProduct2(){
-    this.isLoading = true;
+ onSearch(search){
+        const lettersLimit = 2;
+        if (search.length > lettersLimit) {
+            axios.get('/search/products?product='+search+'&branch=true' )
+            .then( response => {
+                this.products = response.data;
+            });
+        }
+    },
+
+loadProduct2(search){
     this.display = 'd-block';
-    axios.get(route('branchProduct', this.transfer.branch))
-    .then((response) => {
-            this.products2 = response.data.products;
-            this.isLoading = false;
-            })
+    const lettersLimit = 2;
+            axios.get('/api/branch/products/?product='+search+'&branch='+ this.transfer.branch )
+            .then( response => {
+                this.products2 = response.data.products;
+            });
+
 },
     Save(){
         this.isLoading = true;
@@ -345,16 +359,12 @@ editTransfer(transfer){
 },
       getResults(page =1) {
           this.isLoading = true;
-                axios.get('/get/products')
-                .then(response => {
-                    this.products = response.data.products;
+          
                     axios.get('/api/transfer?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search + "&to_branch=" + this.filter.to_branch + "&date=" + this.filter.date)
                     .then( response => {
                         this.laravelData = response.data;
                         this.isLoading = false;
                     });
-                })
-                
             },
 
 

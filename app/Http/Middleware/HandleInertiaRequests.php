@@ -80,6 +80,12 @@ class HandleInertiaRequests extends Middleware
                 }else{
                     return abort(404);
                 }
+            },
+            'user.admin' => function(){
+                global $request;
+                if(Session::has('admin')){
+                    return session('admin');
+                }
             } 
         ]);
     }

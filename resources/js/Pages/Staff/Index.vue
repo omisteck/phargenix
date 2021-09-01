@@ -62,6 +62,8 @@
                                                                 </button>
                                                                 <div class="dropdown-menu" aria-labelledby="btnGroupVerticalDrop2">
                                                                     <a href="#" @click="edit(staff)" class="dropdown-item">Edit</a>
+                                                                    <a href="#" @click="loginAs(staff)" class="dropdown-item">Login As</a>
+                                                                    <a href="#" @click="givePermission(staff.user)" class="dropdown-item">Permissions</a>
                                                                     <a class="dropdown-item text-danger " @click="deleteStaff(staff.user)" href="#">Delete</a>
                                                                 </div>
                                                             </div>
@@ -284,6 +286,45 @@
     </div> 
 </div>
 
+
+
+<div class="modal fade" id="permission" tabindex="-1" role="dialog" aria-labelledby="permissionLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+<form  method="POST" @submit.prevent="savePermission"> 
+        <div class="modal-content">
+            
+            <div class="modal-header">
+                <h5 class="modal-title" id="permissionLabel">Edit Permission for {{ permission.user.name}} </h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                  <svg aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-x"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row" >
+
+                    <div class="col-6" v-for="permit in permissions" :key="permit.id">
+                        <div class="n-chk">
+                            <label class="new-control new-checkbox checkbox-success">
+                            <input type="checkbox" class="new-control-input" v-model="permission.access" :value="permit.name">
+                            <span class="new-control-indicator"></span>{{ permit.name}}
+                            </label>
+                        </div>
+                    </div>
+
+                </div>
+                    
+                   
+                
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-danger" data-dismiss="modal"><i class="flaticon-cancel-12"></i> Discard</button>
+                <button type="submit" class="btn btn-primary">Give Permission</button>
+            </div>
+        </div>
+    </form>
+    </div> 
+</div>
+
     
                                 </div>
 </layout>
@@ -298,7 +339,7 @@ export default {
   // Using the shorthand
 //   layout: Layout,
 
-props : ['branches', 'roles'],
+props : ['branches', 'roles', 'permissions'],
 
   data: function () {
     return {
@@ -320,6 +361,11 @@ props : ['branches', 'roles'],
         },
 
         editBranch : {
+        },
+
+        permission : {
+            user: {},
+            access:[],
         },
     };
   },
@@ -360,6 +406,29 @@ components: {
                 axios.get('api/staffs?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search)
                     .then( response => {
                         this.laravelData = response.data;
+                    });
+            },
+    givePermission(user){
+        this.permission.user = user;
+        $('#permission').modal('show');
+    },
+    savePermission(){
+        axios.post('save/permission', this.permission)
+                    .then( response => {
+                        this.$toast.success(response.data.success);
+                        this.permission = {
+                                                user: {},
+                                                access:[],
+                                            },{}
+                        $('#permission').modal('hide');
+
+                    });
+    },
+
+    loginAs(staff) {
+                axios.post('login/as/staff', staff)
+                    .then( response => {
+                            window.location = "/home";
                     });
             },
 

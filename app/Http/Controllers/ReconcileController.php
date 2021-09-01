@@ -20,9 +20,7 @@ class ReconcileController extends Controller
 
     public function index(){
         
-        $products = Helpers::get_product();
-        
-        return Inertia::render('product/Reconcile', ['products' => $products]);
+        return Inertia::render('product/Reconcile');
     }
 
     public function search(Request $request){
@@ -45,7 +43,7 @@ class ReconcileController extends Controller
 
         }
         
-    	$reconcile = $reconcile->paginate($pagination);
+    	$reconcile = $reconcile->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($reconcile);
     }
 

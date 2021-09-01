@@ -24,6 +24,7 @@ class CreateRemitsTable extends Migration
             $table->string('Remitted');
             $table->string('Balance');
             $table->string('Date');
+            $table->enum('old', ['true','false'])->default('false');
             $table->foreignId('approve_by')->references('id')->on('users')->onDelete('cascade');
             $table->timestamps();
         });

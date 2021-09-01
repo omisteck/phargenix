@@ -55,7 +55,7 @@
                                                         <th></th>
                                                         <th></th>
                                                         <th></th>
-                                                        <th><h4>&#8358;{{ subTotal(sales, "total") }}</h4></th>
+                                                        <th><h4>&#8358;{{ subTotal(sales, "invoice_total") }}</h4></th>
                                                         <th></th>
                                                         <th></th>
                                                         <th></th>

@@ -166,7 +166,7 @@
                                                                     <a href="#" class="btn btn-primary btn-send" data-toggle="modal" data-target="#createModel">Send Invoice</a>
                                                                 </div>
                                                                 <div class="col-xl-6 col-md-3 col-sm-6">
-                                                                    <a href="#" @click="print" class="btn btn-secondary btn-print  action-print">Print</a>
+                                                                    <a :href="'/print/sales/'+ sales[0].invoice_number" class="btn btn-secondary btn-print  action-print">Print</a>
                                                                 </div>
                                                                 <div class="col-xl-6 col-md-3 col-sm-6">
                                                                     <a :href="'/export/invoices/pdf/'+sales[0].invoice_number" class="btn btn-success btn-download">Download</a>
@@ -261,10 +261,6 @@ components: {
   },
 
   methods: {
-      print(){
-        window.print()
-      },
-
       sendMail(){
           this.mail.invoice = this.sales[0].invoice_number;
           axios.post(route('mail.invoice'), this.mail)

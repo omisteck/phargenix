@@ -15,11 +15,11 @@
                                                                 <option value="Morning">Morning</option>
                                                                 <option value="Afternoon">Afternoon</option>
                                                             </select></div>
-                                                
+
                                                     <div class="col">
                                                          <select id="staff" class="form-control d-inline-block" v-model="filter.staff" @change="getData" required>
                                                                 <option value='' disabled>Select Select</option>
-                                                                <option v-for="staff in staffs" :key="staff.id" :value="staff.user.id" >{{staff.user.name}}</option>
+                                                                <option v-for="staff in staffs" :key="staff.id" :value="staff.user.id" >{{staff.user.name}} - {{ staff.branch.shortname }}</option>
                                                             </select>
                                                       </div>
                                                 </div>                

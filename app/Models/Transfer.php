@@ -9,6 +9,8 @@ class Transfer extends Model
 {
     use HasFactory;
     protected $guarded = [];
+    
+    // public $timestamps = false;
 
     public function to_branches()
     {

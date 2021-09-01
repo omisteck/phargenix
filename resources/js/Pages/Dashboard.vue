@@ -192,9 +192,15 @@
 
         <div class="widget-content">
           <vue-element-loading :active="isLoading" spinner="bar-fade-scale"  color="#009688" />
-          <apexchart
+          <apexchart v-if="$page.props.user.access.position != 'cashier'"
             type="area"
             :options="options"
+            :series="series"
+          ></apexchart>
+
+          <apexchart v-if="$page.props.user.access.position == 'cashier'"
+            type="area"
+            :options="options2"
             :series="series"
           ></apexchart>
         </div>
@@ -452,6 +458,211 @@ export default {
           data: this.expenses_data,
         },
       ],
+      options2: {
+        chart: {
+          fontFamily: "Quicksand, sans-serif",
+          height: 365,
+          type: "area",
+          zoom: {
+            enabled: false,
+          },
+          dropShadow: {
+            enabled: true,
+            opacity: 0.2,
+            blur: 10,
+            left: -7,
+            top: 22,
+          },
+          toolbar: {
+            show: false,
+          },
+          events: {
+            mounted: function (ctx, config) {
+              const highest1 = ctx.getHighestValueInSeries(0);
+              const highest2 = ctx.getHighestValueInSeries(1);
+
+              ctx.addPointAnnotation({
+                x: new Date(
+                  ctx.w.globals.seriesX[0][
+                    ctx.w.globals.series[0].indexOf(highest1)
+                  ]
+                ).getTime(),
+                y: highest1,
+                label: {
+                  style: {
+                    cssClass: "d-none",
+                  },
+                },
+                customSVG: {
+                  SVG:
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="#2196f3" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-circle"><circle cx="12" cy="12" r="10"></circle></svg>',
+                  cssClass: undefined,
+                  offsetX: -8,
+                  offsetY: 5,
+                },
+              });
+
+              ctx.addPointAnnotation({
+                x: new Date(
+                  ctx.w.globals.seriesX[1][
+                    ctx.w.globals.series[1].indexOf(highest2)
+                  ]
+                ).getTime(),
+                y: highest2,
+                label: {
+                  style: {
+                    cssClass: "d-none",
+                  },
+                },
+                customSVG: {
+                  SVG:
+                    '<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="#6d17cb" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" class="feather feather-circle"><circle cx="12" cy="12" r="10"></circle></svg>',
+                  cssClass: undefined,
+                  offsetX: -8,
+                  offsetY: 5,
+                },
+              });
+            },
+          },
+        },
+        colors: ["#2196f3", "#6d17cb"],
+        dataLabels: {
+          enabled: false,
+        },
+        markers: {
+          discrete: [
+            {
+              seriesIndex: 0,
+              dataPointIndex: 7,
+              fillColor: "#000",
+              strokeColor: "#000",
+              size: 5,
+            },
+            {
+              seriesIndex: 2,
+              dataPointIndex: 11,
+              fillColor: "#000",
+              strokeColor: "#000",
+              size: 4,
+            },
+          ],
+        },
+       
+        stroke: {
+          show: true,
+          curve: "smooth",
+          width: 2,
+          lineCap: "square",
+        },
+
+        xaxis: {
+          axisBorder: {
+            show: false,
+          },
+          axisTicks: {
+            show: false,
+          },
+          crosshairs: {
+            show: true,
+          },
+          labels: {
+            offsetX: 0,
+            offsetY: 5,
+            style: {
+              fontSize: "12px",
+              fontFamily: "Quicksand, sans-serif",
+              cssClass: "apexcharts-xaxis-title",
+            },
+          },
+        },
+        yaxis: {
+          labels: {
+            formatter: function (value, index) {
+              return value / 1000 + "K";
+            },
+            offsetX: -15,
+            offsetY: 0,
+            style: {
+              fontSize: "12px",
+              fontFamily: "Quicksand, sans-serif",
+              cssClass: "apexcharts-yaxis-title",
+            },
+          },
+        },
+        grid: {
+          borderColor: "#e0e6ed",
+          strokeDashArray: 5,
+          xaxis: {
+            lines: {
+              show: true,
+            },
+          },
+          yaxis: {
+            lines: {
+              show: false,
+            },
+          },
+          padding: {
+            top: 0,
+            right: 0,
+            bottom: 0,
+            left: -10,
+          },
+        },
+        legend: {
+          position: "top",
+          horizontalAlign: "right",
+          offsetY: -70,
+          fontSize: "16px",
+          fontFamily: "Quicksand, sans-serif",
+          markers: {
+            width: 10,
+            height: 10,
+            strokeWidth: 0,
+            strokeColor: "#fff",
+            fillColors: undefined,
+            radius: 12,
+            onClick: undefined,
+            offsetX: 0,
+            offsetY: 0,
+          },
+          itemMargin: {
+            horizontal: 20,
+            vertical: 20,
+          },
+        },
+        tooltip: {
+          theme: "dark",
+          marker: {
+            show: true,
+          },
+          x: {
+            show: false,
+          },
+        },
+        fill: {
+          type: "gradient",
+          gradient: {
+            type: "vertical",
+            shadeIntensity: 1,
+            inverseColors: !1,
+            opacityFrom: 0.28,
+            opacityTo: 0.05,
+            stops: [45, 100],
+          },
+        },
+        responsive: [
+          {
+            breakpoint: 575,
+            options: {
+              legend: {
+                offsetY: -30,
+              },
+            },
+          },
+        ],
+        labels: this.mouthLabel,
+      },
     };
   },
   props: ["mouthLabel", "stat", "mouthvalue", 'transactions', "expenses_data", "profit", "expenses"],
@@ -461,6 +672,9 @@ created : function(){
     this.isLoading = true;
 },
 mounted : function(){
+  $(document).ready(function() {
+            App.init();
+      });
     this.isLoading = false;
 },
 components: {

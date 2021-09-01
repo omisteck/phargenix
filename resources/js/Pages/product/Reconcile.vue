@@ -141,6 +141,7 @@
                         :items="products"
                         :placeholder="reconcile.item ? '' : 'Select product'"
                         item-text="name"
+                        @search="onSearch"
                         />
                     
                    </div>
@@ -265,9 +266,10 @@ import axios from 'axios';
 export default {
   // Using the shorthand
 //   layout: Layout,
-props: ['products'],
+
   data: function () {
     return {
+        products : [],
         laravelData: {},
        filter : {
            pagination : 5,
@@ -298,6 +300,16 @@ mounted : function(){
 },
 
   methods: {
+onSearch(search){
+        const lettersLimit = 2;
+        if (search.length > lettersLimit) {
+            axios.get('/search/products?product='+search+'&branch=true' )
+            .then( response => {
+                this.products = response.data;
+            });
+        }
+    },
+
 
 editRecon(recon){
     this.edit = recon;
@@ -346,15 +358,12 @@ editRecon(recon){
 },
       getResults(page =1) {
           this.isLoading = true;
-                axios.get('/get/products')
-                .then(response => {
-                    this.products = response.data.products;
+               
                     axios.get('/api/reconcile?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search)
                     .then( response => {
                         this.laravelData = response.data;
                         this.isLoading = false;
                     });
-                })
 
                 
             },

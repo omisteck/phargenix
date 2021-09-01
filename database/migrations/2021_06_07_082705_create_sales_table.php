@@ -27,6 +27,7 @@ class CreateSalesTable extends Migration
             $table->string('mode');
             $table->foreignId('branch_id')->references('id')->on('branches')->onDelete('cascade');
             $table->enum('settlement', ['true','false'])->default('false');
+            $table->enum('old', ['true','false'])->default('false');
             $table->timestamps();
             $table->softDeletes();
         });

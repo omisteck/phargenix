@@ -46,6 +46,7 @@
       :items="products"
       :placeholder="purchase.item ? '' : 'Select product'"
       item-text="name"
+      @search="onSearch"
       @select="focusInput()"
     />
                                                         </div>
@@ -64,7 +65,8 @@
                                                             </div>
                                                             <div class="form-group col">
                                                                 <label for="sell">Selling Price</label>
-                                                                <input type="number" required v-model="purchase.item.selling_price"  class="form-control" id="sell">
+                                                                <input v-if="purchase.item" type="number" required v-model="purchase.item.selling_price"  class="form-control" id="sell">
+                                                                <input v-else type="number" required value="0"  class="form-control" id="sell">
                                                             </div>
 
                                                             <div class="form-group col">
@@ -167,11 +169,11 @@
                                                     <div class="form-row mb-4">
                                                         <div class="form-group col-md-6">
                                                             <label for="sale">Selling Price</label>
-                                                            <input type="text" class="form-control" id="sale" v-model="product.selling_price"  required placeholder="Mr James">
+                                                            <input type="text" class="form-control" id="sale" v-model="product.selling_price"  required placeholder="100">
                                                         </div>
                                                         <div class="form-group col-md-6">
                                                             <label for="sales_contact">Cost Price</label>
-                                                            <input type="text" class="form-control" id="sales_contact" v-model="product.cost_price" required placeholder="09064629981">
+                                                            <input type="text" class="form-control" id="sales_contact" v-model="product.cost_price" required placeholder="100">
                                                         </div>
                                                     </div>
 
@@ -263,10 +265,11 @@ export default {
   // Using the shorthand
 //   layout: Layout,
 
-props : ['branchies', 'categories', 'suppliers', 'products'],
+props : ['branchies', 'categories', 'suppliers'],
 
   data: function () {
     return {
+        products: [],
         product : {
             name : '',
             category_id : '',
@@ -325,9 +328,17 @@ VueElementLoading,
   },
 
   methods: {
-      changeInvoiceNumber(){
 
-          
+    onSearch(search){
+        const lettersLimit = 2;
+        if (search.length > lettersLimit) {
+            axios.get('/search/products?product='+search+'&branch=true' )
+            .then( response => {
+                this.products = response.data;
+            });
+        }
+    },
+      changeInvoiceNumber(){
                 for (let field of Object.keys(this.cart['items'])) {
                     this.cart['items'][field]['invoice'] = this.purchase.invoice;
                 }
@@ -431,9 +442,10 @@ var items = [];
 }
 },
     focusInput(){
+        console.log(this.purchase);
         this.purchase.qty = 0;
-        // this.$refs.qty.focus();
-        this.$nextTick(() => this.$refs.qty.focus())
+        this.$refs.qty.focus();
+        // this.$nextTick(() => this.$refs.qty.focus())
     },
 storeProduct(){
           axios.post(route('products.store'), this.product)

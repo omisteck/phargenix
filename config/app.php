@@ -180,7 +180,8 @@ return [
         Spatie\Permission\PermissionServiceProvider::class,
 
         Intervention\Image\ImageServiceProvider::class,
-        Barryvdh\DomPDF\ServiceProvider::class,
+        // Barryvdh\DomPDF\ServiceProvider::class,
+        Meneses\LaravelMpdf\LaravelMpdfServiceProvider::class
 
 
     ],
@@ -238,7 +239,9 @@ return [
         'Image' => Intervention\Image\Facades\Image::class,
         'Helpers' => App\Helpers\Helpers::class,
         'Keygen' => Keygen\Keygen::class,
-        'PDF' => Barryvdh\DomPDF\Facade::class,
+        // 'PDF' => Barryvdh\DomPDF\Facade::class,
+        'PDF' => Meneses\LaravelMpdf\Facades\LaravelMpdf::class
+
     ],
 
 ];

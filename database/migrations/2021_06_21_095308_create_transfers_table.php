@@ -21,6 +21,7 @@ class CreateTransfersTable extends Migration
             $table->json('to_product');
             $table->integer('qty');
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
+            $table->enum('old', ['true','false'])->default('false');
             $table->timestamps();
         });
     }

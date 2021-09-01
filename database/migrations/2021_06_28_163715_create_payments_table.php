@@ -22,6 +22,7 @@ class CreatePaymentsTable extends Migration
             $table->foreignId('supplier_id')->references('id')->on('suppliers')->onDelete('cascade');
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreignId('branch_id')->references('id')->on('branches')->onDelete('cascade');
+            $table->enum('old', ['true','false'])->default('false');
             $table->timestamps();
         });
     }

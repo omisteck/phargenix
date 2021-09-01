@@ -41,7 +41,7 @@ class PaymentController extends Controller
 
         }
         
-    	$payments = $payments->paginate($pagination);
+    	$payments = $payments->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($payments);
     }
 
@@ -96,7 +96,8 @@ class PaymentController extends Controller
             'branch_id' => Helpers::active_branch()['id'],
         ]);
 
-        $purchases->update(['settlement' => 'true' ]); 
+        // dd($purchases->get());
+        Purchase::where('invoice_number',$request->invoice_number )->update(['settlement' => 'true' ]); 
 
         }elseif($payments_sum+$request->amount  >= $purchases_sum){
             return response()->json(['errors' => [['The amount enter is more than the balance of this invoice']]], 428);
@@ -165,6 +166,7 @@ class PaymentController extends Controller
         $payments = Payment::where('invoice_number',$request->invoice_number )->get();
         $purchases_sum  = $purchases->get()->sum('total');
         $payments_sum = $payments->sum('amount');
+
         if(($payments_sum -$payment->amount)+$request->amount  == $purchases_sum){
             $payment->update([
                 'invoice_number' => $request->invoice_number,

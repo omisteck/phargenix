@@ -13,6 +13,7 @@ use App\Actions\Fortify\ResetUserPassword;
 use App\Actions\Fortify\UpdateUserPassword;
 use Illuminate\Support\Facades\RateLimiter;
 use App\Actions\Fortify\UpdateUserProfileInformation;
+use Carbon\Carbon;
 
 class FortifyServiceProvider extends ServiceProvider
 {
@@ -69,6 +70,10 @@ class FortifyServiceProvider extends ServiceProvider
     
             if ($user &&
                 Hash::check($request->password, $user->password)) {
+                   $user->last_login = Carbon::now();
+                   $user->update();
+                   session()->flush();
+
                 return $user;
             }
         });

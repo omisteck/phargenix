@@ -66,11 +66,20 @@ var App = function() {
                 //     console.log('main2');
                     
                     if (window.innerWidth <= 1199) {
-                        get_mainContainer.classList.toggle("sidebar-closed");
-                    get_mainContainer.classList.toggle("sbar-open");
+                        // get_mainContainer.classList.toggle("sidebar-closed");
+                    // get_mainContainer.classList.toggle("sbar-open");
+                    $(document).ready(function(){
+                        $(".main-container").toggleClass("sidebar-closed");
+                        $(".main-container").toggleClass("sbar-open");
+                    })
                         if (get_overlay.classList.contains('show')) {
                             get_overlay.classList.remove('show');
                         } else {
+                            $(document).ready(function(){
+                                $(".main-container").toggleClass("sidebar-closed");
+                        $(".main-container").toggleClass("sbar-open");
+                                $(".overlay").addClass("show")
+                            })
                             get_overlay.classList.add('show');
                         }
                         console.log('ii');

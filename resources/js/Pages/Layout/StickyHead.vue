@@ -17,6 +17,7 @@
                                   <div class="header-actions">
                                       <div class="nav-item dropdown language-dropdown more-dropdown">
                                           <div class="dropdown custom-dropdown-icon">
+                                              <a class="btn btn-danger btn-sm" href="#" role="button" v-if="$page.props.user.admin" @click="returnAdmin()" >Return to Admin </a>
                                               <a class="dropdown-toggle btn btn-success" href="#" role="button" id="customDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                                   
                                                   <span>{{ $page.props.user.branch.active.shortname }}</span> <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-chevron-down text-white"><polyline points="6 9 12 15 18 9"></polyline></svg></a>
@@ -29,9 +30,12 @@
                                           </div>
                                       </div>
 
-                                      <div class="toggle-notification-bar">
-                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-                                      </div>
+                                      <!-- <div class="toggle-notification-bar"> -->
+                                        <a  @click="logout" class="btn btn-danger m-4">
+                                          <!-- <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-bell"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg> -->
+                                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-user"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                            logout
+                                      </a>
                                   </div>
                               </header>
                           </div>
@@ -41,6 +45,18 @@
 export default {
     props: ['title'],
     methods: {
+
+        logout() {
+            axios.post('/logout');
+            window.location='/';
+        },
+
+        returnAdmin(){
+            axios.post('/login/as/staff', {'user_id': this.$page.props.user.admin, "user_type": 'admin' })
+                    .then( response => {
+                            window.location = "/home";
+                    });
+        },
         changeBranch(branch){
             axios.post(route('changeBranch'), branch)
         .then((response) => {

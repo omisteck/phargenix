@@ -16,6 +16,8 @@
       :placeholder="filter.search ? '' : 'Select product'"
       item-text="name"
       item-value="id"
+      disable-filtering-by-search
+      @search="onSearch"
       @select="populateLedger()"
     />
                                                       </div>
@@ -67,8 +69,7 @@
                         <td v-else></td>
                         <td v-if="result.type == 'transfer' || result.type == 'sales' ">{{ result.qty }}</td>
                         <td v-else></td>
-                        <td v-if="result.type == 'purchases' || result.type == 'sales returned' || result.types == 'reconcile' ">{{  total ?  total = total - result.qty : total = laravelData.instore - result.qty   }}</td>
-                        <td v-else>{{   total ?  total = total + result.qty : total = laravelData.instore + result.qty }}</td>
+                        <td >{{  result.current_instore  }}</td>
                         <td v-if="result.type == 'purchases'" >{{ result.unit }}</td>
                         <td v-else></td>
                         <td v-if="result.type == 'sales' || result.type == 'sales returned'" >{{ JSON.parse(result.data).selling_price }}</td>
@@ -155,9 +156,10 @@ import axios from 'axios';
 export default {
   // Using the shorthand
 //   layout: Layout,
-props: ['products', 'branchies'],
+props: ['branchies'],
   data: function () {
     return {
+        products: [],
         laravelData: {},
        filter : {
            pagination : 5,
@@ -172,7 +174,7 @@ props: ['products', 'branchies'],
             from : {},
         },
 
-        products2 : [],
+
         
         display : 'd-none',
 
@@ -199,7 +201,15 @@ mounted : function(){
 
   methods: {
  
-
+    onSearch(search){
+        const lettersLimit = 2;
+        if (search.length > lettersLimit) {
+            axios.get('/search/products?product='+search)
+            .then( response => {
+                this.products = response.data;
+            });
+        }
+    },
     populateLedger(page =1) {
 
                 axios.get('/api/ledger?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search + "&from_date=" + this.filter.from_date + "&to_date=" + this.filter.to_date)

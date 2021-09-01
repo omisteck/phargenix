@@ -28,14 +28,21 @@ class ProductController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['permission:Manage Product'])->except([ 'ledger_search' , 'ledger']);
+        $this->middleware(['permission:Manage Product'])->except([ 'products','product','branchProduct','ledger_search' , 'ledger']);
     }
 
-    public function products(Request $request){
-        $products = Helpers::get_product();
+  
+    public function product(Request $request){
+        if($request->has('branch')){
+            $products = Helpers::search_product($request->product,$request->branch);
+        }else{
+            $products = Helpers::search_product($request->product);
+        }
 
-        return response()->json(['products' => $products]);
+        return response()->json($products,200);
     }
+
+
 
     public function index()
     {
@@ -82,7 +89,7 @@ class ProductController extends Controller
 
     public function ledger_search(Request $request){
         
-        ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+        ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 50;
         
         $data = collect(); $sales_formated = collect(); $transfers_formated = collect(); $sales_returns_formated = collect();$reconciles_formated = collect(); $purchases_formated = collect();
         $sales = $transfer = $sales_returns = $reconciles = $purchases ='';
@@ -160,6 +167,16 @@ class ProductController extends Controller
         {
             return strtotime($col['created_at']);
         })->values()->all();
+        $current_instore = Helpers::get_instore_value($request->search);
+        foreach($data as $rec){
+            if($rec->type == 'purchases' || $rec->type == 'sales returned' || $rec->types == 'reconcile'){
+                $rec->current_instore = $current_instore = $current_instore - $rec->qty;
+            }else{
+                $rec->current_instore = $current_instore= $current_instore + $rec->qty;
+            }
+
+        }
+
 
         $page = LengthAwarePaginator::resolveCurrentPage();
         $currentPage = $page - 1;
@@ -179,8 +196,12 @@ class ProductController extends Controller
     }
 
 
-    public function branchProduct($branch){
-        $products = Helpers::get_product($branch);
+    public function branchProduct(Request $request){
+        if($request->has('branch')){
+            $products = Helpers::get_product($request->product,$request->branch);
+        }else{
+            $products = Helpers::get_product($request->product,1);
+        }
         return response()->json(['products' => $products]);
     }
 
@@ -188,12 +209,8 @@ class ProductController extends Controller
     public function ledger(){
         $user = auth()->user();
         $branchies = Staff::where('user_id', $user->id)->with('branch');
-        if(auth()->user()->level == 'admin'){
-            $products = $user->organization->products;
-        }else{
-            $products = product::where('branch_id', Helpers::active_branch()['id']);
-        }
-        return Inertia::render('Ledger/Index', ['branchies' => $branchies, 'products' => $products]);
+        // $products = product::where('branch_id', Helpers::active_branch()['id'])->get(); 'products' => $products
+        return Inertia::render('Ledger/Index', ['branchies' => $branchies, ]);
     }
 
     /**

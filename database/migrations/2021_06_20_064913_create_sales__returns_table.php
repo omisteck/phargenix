@@ -21,6 +21,7 @@ class CreateSalesReturnsTable extends Migration
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->foreignId('sale_id')->references('id')->on('sales')->onDelete('cascade');
             $table->foreignId('branch_id')->references('id')->on('branches')->onDelete('cascade');
+            $table->enum('old', ['true','false'])->default('false');
             $table->timestamps();
         });
     }

@@ -39,6 +39,8 @@
       :items="products"
       :placeholder="sale.item ? '' : 'Select product'"
       item-text="name"
+      disable-filtering-by-search
+      @search="onSearch"
       @select="focusInput()"
     />
                                                             <!-- <input type="text" class="form-control" id="inputAddress" placeholder="1234 Main St"> -->
@@ -176,10 +178,11 @@ export default {
   // Using the shorthand
 //   layout: Layout,
 
-props : ['invoice_number', 'shift', 'products', 'formated'],
+props : ['invoice_number', 'shift', 'formated'],
 
   data: function () {
     return {
+        products: [],
         product : {
             name : '',
             category_id : '',
@@ -226,6 +229,15 @@ components: {
   },
 
   methods: {
+      onSearch(search){
+        const lettersLimit = 2;
+        if (search.length > lettersLimit) {
+            axios.get('/search/products?product='+search+'&branch=true' )
+            .then( response => {
+                this.products = response.data;
+            });
+        }
+    },
 updateSales(){
     if(this.cart.discount < this.subTotal(this.cart.items, "total")){
         

@@ -41,6 +41,8 @@
       :items="products"
       :placeholder="sale.item ? '' : 'Select product'"
       item-text="name"
+      disable-filtering-by-search
+      @search="onSearch"
       @select="focusInput()"
     />
                                                         </div>
@@ -236,10 +238,11 @@ export default {
   // Using the shorthand
 //   layout: Layout,
 
-props : ['branchies', 'categories', 'shift', 'products'],
+props : ['branchies', 'categories', 'shift'],
 
   data: function () {
     return {
+        products : [],
         product : {
             name : '',
             category_id : '',
@@ -280,6 +283,9 @@ mounted : function(){
     }
     this.getInvoiceNumber();
     this.isLoading = false;
+    $(document).ready(function() {
+            App.init();
+      });
 },
 
 components: {
@@ -288,6 +294,15 @@ components: {
   },
 
   methods: {
+      onSearch(search){
+        const lettersLimit = 2;
+        if (search.length > lettersLimit) {
+            axios.get('/search/products?product='+search+'&branch=true' )
+            .then( response => {
+                this.products = response.data;
+            });
+        }
+    },
       getInvoiceNumber(){
           axios.get('/api/invoice')
          .then( response => {
@@ -302,7 +317,7 @@ saveSales(){
         .then((response) => {
             var old = this.cart.invoice
                 localStorage.removeItem('cart')
-                this.$inertia.visit('/invoices/'+old);
+                window.location ='/print/sales/'+old;
             })
             .catch(error => {
                 this.isLoading = false;

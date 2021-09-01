@@ -23,7 +23,7 @@ class BranchController extends Controller
                     ->orWhere('phone','LIKE', '%'.$request->search .'%')
                     ->orWhere('email','LIKE', '%'.$request->search .'%');
         }
-        $branches = $branches->paginate($pagination);
+        $branches = $branches->orderBy('created_at', 'desc')->paginate($pagination);
     	return response()->json($branches);
     }
 

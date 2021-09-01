@@ -40,8 +40,7 @@ class PurchaseController extends Controller
         $branchies = Staff::where('user_id', auth()->user()->id)->with('branch');
         $suppliers = $user->organization->suppliers;
         $categories = $user->organization->categories;
-        $products = Helpers::get_product();
-        return Inertia::render('Purchase/Purchase', ['products' => $products, 'suppliers' => $suppliers, 'branchies' => $branchies->get(), 'categories' => $categories]);
+        return Inertia::render('Purchase/Purchase', ['suppliers' => $suppliers, 'branchies' => $branchies->get(), 'categories' => $categories]);
     }
 
 
@@ -49,7 +48,7 @@ class PurchaseController extends Controller
         
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
 
-        $purchases = auth()->user()->purchases()->where('branch_id', Helpers::active_branch()['id'])
+        $purchases = Purchase::where('branch_id', Helpers::active_branch()['id'])
         ->distinct()
         ->select('invoice_number','supplier','settlement','user_id', 'branch_id','created_at')
         ->with(['user','branch', 'supplier']);
@@ -69,6 +68,7 @@ class PurchaseController extends Controller
         }
 
     	$purchases = $purchases->orderBy('created_at', 'desc')->paginate($pagination);
+        
     	return response()->json($purchases);
 
     }
@@ -131,7 +131,6 @@ class PurchaseController extends Controller
         $user = auth()->user();
         $branchies = Staff::where('user_id', auth()->user()->id)->with('branch');
         $categories = $user->organization->categories;
-        $products = Helpers::get_product();
         $suppliers = $user->organization->suppliers;
 
         $items = collect();
@@ -150,7 +149,7 @@ class PurchaseController extends Controller
             $items = $items->push($formated);
         }
 
-        return Inertia::render('Purchase/Edit', ['products' => $products, 'suppliers' => $suppliers, 'data' => $items,'branchies' => $branchies->get(), 'categories' => $categories ]);
+        return Inertia::render('Purchase/Edit', ['suppliers' => $suppliers, 'data' => $items,'branchies' => $branchies->get(), 'categories' => $categories ]);
     }
 
     /**
@@ -166,7 +165,9 @@ class PurchaseController extends Controller
             'items' => "required|array",
         ]);
 
+        
         foreach($request->items as $purchase){
+
             if(isset($purchase['id']) && $purchase['id'] != ""){
                 $purchase_record = Purchase::where('id',$purchase['id'])->first();
                 $purchase_record->update([
@@ -183,7 +184,7 @@ class PurchaseController extends Controller
                     "qty" => $purchase["qty"],
                     "total" => $purchase["total"],
                     "unit" => $purchase["total"] / $purchase["qty"],
-                    "user_id" => auth()->user()->id,
+                    "user_id" => Purchase::where('invoice_number',$purchase['invoice'])->first()->user_id,
                     "created_at" => $purchase["date"],
                 ]);
             }
