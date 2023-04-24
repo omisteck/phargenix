@@ -164,7 +164,7 @@ class UserController extends Controller
     public function destroy(User $user)
     {
         if($user->level != 'admin'){
-            if($user->delete()){
+            if($user->update(['password' => 'disable'])){
                 return response()->json(['success' => 'Staff Successfully Deleted'], 200);
             }
         }else{
