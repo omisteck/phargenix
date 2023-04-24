@@ -25,31 +25,32 @@ class SalesController extends Controller
 
     public function __construct()
     {
-        $this->middleware(['permission:Manage Product'])->except(['invoice_number', 'print','create', 'old_sales','store']);
+        $this->middleware(['permission:Manage Product'])->except(['invoice_number', 'print', 'create', 'old_sales', 'store']);
     }
 
 
-    public function invoice_number(){
-        
-        if(session('used_invoice') == false && (session('invoice') == null || session('invoice') == '')){
+    public function invoice_number()
+    {
+
+        if (session('used_invoice') == false && (session('invoice') == null || session('invoice') == '')) {
             session(['invoice' => Helpers::generateInvoiceNumber()]);
-        }elseif(session('used_invoice') == true && (session('invoice') != null)){
+        } elseif (session('used_invoice') == true && (session('invoice') != null)) {
             session(['invoice' => Helpers::generateInvoiceNumber()]);
-            session(['used_invoice' => false ]);
+            session(['used_invoice' => false]);
             session()->save();
         }
-        
-        return response()->json(['invoice' => session('invoice'),'used_invoice' => session('used_invoice') ], 200);
+
+        return response()->json(['invoice' => session('invoice'), 'used_invoice' => session('used_invoice')], 200);
     }
 
-    public function print($invoice_number){
+    public function print($invoice_number)
+    {
         $sales = Sales::where('invoice_number', $invoice_number)->get();
         // dd($sales);
         $pdf = PDF::loadView('pdf.print', ['Sales' => $sales], [], [
             'format' => [72, 236],
         ]);
-		return $pdf->stream('recipt.pdf');
-
+        return $pdf->stream('recipt.pdf');
     }
 
     public function index()
@@ -58,32 +59,32 @@ class SalesController extends Controller
     }
 
 
-    public function search(Request $request){
-        
-        ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
+    public function search(Request $request)
+    {
 
-        if(auth()->user()->level == 'admin'){
+        ($request->has('pagination')) ? $pagination = $request->pagination : $pagination = 5;
+
+        if (auth()->user()->level == 'admin') {
             $sales = Sales::where('branch_id', Helpers::active_branch()['id'])->with(['user', 'branch']);
-        }else{
-            $sales = auth()->user()->sales()->where('branch_id', Helpers::active_branch()['id'])->with(['user','branch']);
+        } else {
+            $sales = auth()->user()->sales()->where('branch_id', Helpers::active_branch()['id'])->with(['user', 'branch']);
         }
-        
 
-        if($request->has('search') && $request->search != ''){
-            $sales->where('data->name','LIKE', '%'.$request->search .'%')
-            ->orWhere('invoice_number', 'LIKE', '%'.$request->search .'%')
-            ->orWhere('shift', 'LIKE', '%'.$request->search .'%')
-            ->orWhere('mode', 'LIKE', '%'.$request->search .'%')
-            ->orWhereHas('branch', function($q) use($request) {
-                $q->where('name', 'LIKE', '%'.$request->search .'%');
-             })->orWhereHas('user', function( $query ) use ( $request ){
-                 $query->where('name', 'LIKE', '%'.$request->search .'%');
-            });
 
+        if ($request->has('search') && $request->search != '') {
+            $sales->where('data->name', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('invoice_number', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('shift', 'LIKE', '%' . $request->search . '%')
+                ->orWhere('mode', 'LIKE', '%' . $request->search . '%')
+                ->orWhereHas('branch', function ($q) use ($request) {
+                    $q->where('name', 'LIKE', '%' . $request->search . '%');
+                })->orWhereHas('user', function ($query) use ($request) {
+                    $query->where('name', 'LIKE', '%' . $request->search . '%');
+                });
         }
-        
-    	$sales = $sales->orderBy('created_at', 'desc')->paginate($pagination);
-    	return response()->json($sales);
+
+        $sales = $sales->orderBy('created_at', 'desc')->paginate($pagination);
+        return response()->json($sales);
     }
 
 
@@ -99,18 +100,18 @@ class SalesController extends Controller
         $branchies = Staff::where('user_id', auth()->user()->id)->with('branch');
         $categories = $user->organization->categories;
 
-        if(!Session::has('shift') && session('shift') == ""){
+        if (!Session::has('shift') && session('shift') == "") {
             session(['shift' => Helpers::shift()]);
             session()->save();
         }
-        
+
         // if(!Session::has('invoice') && session('invoice') == ""){
         //     session(['invoice' => Helpers::generateInvoiceNumber()]);
         //     session()->save();
         // }
 
-        
-        return Inertia::render('Sales/Sale', ['shift' => session('shift') , 'branchies' => $branchies->get(), 'categories' => $categories]);
+
+        return Inertia::render('Sales/Sale', ['shift' => session('shift'), 'branchies' => $branchies->get(), 'categories' => $categories]);
     }
 
 
@@ -120,12 +121,12 @@ class SalesController extends Controller
     {
         $user = auth()->user();
 
-        if(!Session::has('shift') && session('shift') == ""){
+        if (!Session::has('shift') && session('shift') == "") {
             session(['shift' => Helpers::shift()]);
             session()->save();
         }
-        
-        return Inertia::render('Sales/Old', ['shift' => session('shift') ]);
+
+        return Inertia::render('Sales/Old', ['shift' => session('shift')]);
     }
 
     /**
@@ -143,10 +144,10 @@ class SalesController extends Controller
             'items' => 'required|array',
             'mode' => 'required|string',
             'paid' => 'required|numeric'
-        ]); 
+        ]);
 
-        foreach($request->items as $item){
-            if($request->has('date')){
+        foreach ($request->items as $item) {
+            if ($request->has('date')) {
                 Sales::create([
                     'user_id' => Auth::user()->id,
                     'invoice_number' => $request->invoice,
@@ -161,7 +162,7 @@ class SalesController extends Controller
                     'mode' => $request->mode,
                     'created_at' =>  $request->date
                 ]);
-            }else{
+            } else {
                 Sales::create([
                     'user_id' => Auth::user()->id,
                     'invoice_number' => $request->invoice,
@@ -173,12 +174,12 @@ class SalesController extends Controller
                     'invoice_discount' => $request->discount,
                     'invoice_paid' => $request->paid,
                     'branch_id' => Helpers::active_branch()["id"],
-                    'mode' => $request->mode
+                    'mode' => $request->mode,
+                    'created_at' =>  Carbon::now()
                 ]);
             }
-            
         }
-        session(['used_invoice' => true ]);
+        session(['used_invoice' => true]);
     }
 
     /**
@@ -189,7 +190,6 @@ class SalesController extends Controller
      */
     public function show(Sales $sales)
     {
-        
     }
 
     /**
@@ -201,7 +201,7 @@ class SalesController extends Controller
     public function edit($sales)
     {
         $transaction = Sales::where('invoice_number', $sales)->get();
-        
+
         $user = auth()->user();
 
         $invoice_number = $transaction[0]->invoice_number;
@@ -211,7 +211,7 @@ class SalesController extends Controller
         $items = collect();
 
 
-        foreach($transaction as $trans){
+        foreach ($transaction as $trans) {
             $formated = [
                 'qty' => $trans->qty,
                 'shift' => $trans->shift,
@@ -223,14 +223,14 @@ class SalesController extends Controller
         }
 
         $formated = [
-            'invoice'=> $invoice_number,
+            'invoice' => $invoice_number,
             'discount' => $discount,
             'mode' => $mode,
             'items' => $items,
             'paid' => $paid
         ];
-        
-        return Inertia::render('Sales/Edit', ["invoice_number" => $invoice_number ,'shift' => $transaction[0]->shift, 'formated' => $formated ]);
+
+        return Inertia::render('Sales/Edit', ["invoice_number" => $invoice_number, 'shift' => $transaction[0]->shift, 'formated' => $formated]);
     }
 
     /**
@@ -247,24 +247,24 @@ class SalesController extends Controller
             'items' => 'required|array',
             'mode' => 'required|string',
             'paid' => 'required|numeric'
-        ]); 
-        $sale = Sales::where('invoice_number',$sales)->first();
-        (!empty($sale))? $sold=$sale->user_id : $sold = Auth::user()->id;
+        ]);
+        $sale = Sales::where('invoice_number', $sales)->first();
+        (!empty($sale)) ? $sold = $sale->user_id : $sold = Auth::user()->id;
         $sum = collect($request->items)->sum('total');
-        foreach($request->items as $item){
-            if(isset($item["ref"])){
+        foreach ($request->items as $item) {
+            if (isset($item["ref"])) {
                 Sales::where('id', $item["ref"])
-                ->update([
-                    'qty' => $item["qty"],
-                    'shift' => $item["shift"],
-                    'total' => $item["total"],
-                    'data' => json_encode($item["item"]),
-                    'mode' => $request->mode,
-                    'invoice_paid' => $request->paid,
-                    'invoice_discount' => $request->discount,
-                    'invoice_total' => $sum - $request->discount,
-                ]);
-            }else{
+                    ->update([
+                        'qty' => $item["qty"],
+                        'shift' => $item["shift"],
+                        'total' => $item["total"],
+                        'data' => json_encode($item["item"]),
+                        'mode' => $request->mode,
+                        'invoice_paid' => $request->paid,
+                        'invoice_discount' => $request->discount,
+                        'invoice_total' => $sum - $request->discount,
+                    ]);
+            } else {
 
                 Sales::create([
                     'user_id' => $sold,
@@ -273,16 +273,14 @@ class SalesController extends Controller
                     'shift' => $item["shift"],
                     'qty' => $item['qty'],
                     'total' => $item['total'],
-                    'invoice_total' => $sum -$request->discount,
+                    'invoice_total' => $sum - $request->discount,
                     'invoice_discount' => $request->discount,
                     'invoice_paid' => $request->paid,
                     'branch_id' => Helpers::active_branch()["id"],
                     'mode' => $request->mode
                 ]);
-
             }
         }
-      
     }
 
     /**
@@ -293,18 +291,17 @@ class SalesController extends Controller
      */
     public function destroy($sales)
     {
-        $sale = Sales::where('id',$sales);
+        $sale = Sales::where('id', $sales);
         $sale->delete();
     }
 
-    public function delete_sale( $sales )
+    public function delete_sale($sales)
     {
         $sale = Sales::where('id', $sales);
         $sale_data = $sale->first();
         $invoice_number = $sale_data->invoice_number;
         $sale->delete();
-        $sum = (Sales::where('invoice_number', $invoice_number)->sum('total') - $sale_data->invoice_discount );
+        $sum = (Sales::where('invoice_number', $invoice_number)->sum('total') - $sale_data->invoice_discount);
         $update =  Sales::where('invoice_number', $invoice_number)->update(['invoice_total' => $sum]);
-
     }
 }
