@@ -21,6 +21,7 @@ class CreateRemitsTable extends Migration
             $table->string('Cash');
             $table->string('Transfer');
             $table->string('Total');
+            $table->string('Todelete');
             $table->string('Remitted');
             $table->string('Balance');
             $table->string('Date');

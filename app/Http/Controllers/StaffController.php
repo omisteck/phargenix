@@ -66,6 +66,13 @@ class StaffController extends Controller
         return response()->json(['success' => 'Permission updated successfully'],200);
     }
 
+    public function current_permission(Request $request){
+        $staff = $request->id;
+
+        $roles = User::find($staff)->getAllPermissions();
+        return response()->json($roles);
+    }
+
 
     public function search(Request $request){
         
@@ -122,9 +129,19 @@ class StaffController extends Controller
                 $sales->where('shift', $request->shift);
             }
             // dd($sales->get());
-            $sales = $sales->orderBy('created_at','desc')->orderBy('shift','desc')->get();
-            
-            return Inertia::render('Sales/List', ['sales' => $sales]);
+
+            $sales = $sales->orderBy('created_at','desc')->orderBy('shift','desc');
+
+            $static = Sales::where('user_id', $request->staff)
+            ->when($request->has('date'), function ($query) use ($request) {
+                $query->whereDate('created_at', $request->date);
+            })
+            ->when($request->has('shift'), function ($query) use ($request) {
+                $query->where('shift', $request->shift);
+            })
+            ->groupBy(['invoice_number', 'invoice_discount'])->get(['invoice_discount','invoice_number'])->sum('invoice_discount');
+
+            return Inertia::render('Sales/List', ['sales' => $sales->get(), 'total' => $sales->sum('total'), 'sum' => $sales->sum('total') - $static , 'discount'=> $static ]);
     }
 
     public function create()

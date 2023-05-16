@@ -77,7 +77,7 @@ class Helpers{
                     FROM sales_returns Where old ='false'
                     GROUP BY product
                   ) sr ON p.id = sr.product
-        WHERE p.name LIKE '%".$product."%' AND p.branch_id = ". $branchHolder;
+        WHERE p.name LIKE '%".$product."%' AND p.branch_id = ". $branchHolder." LIMIT 50";
         
         $products = DB::select((DB::raw($sql)));
         return $products;
@@ -95,10 +95,10 @@ class Helpers{
                     FROM sales  Where old = 'false'
                     GROUP BY product
                   ) s ON p.id = s.product
-        LEFT JOIN ( SELECT SUM(purchases.qty) num, JSON_EXTRACT(purchases.product, '$.\"id\"') product
+        LEFT JOIN ( SELECT SUM(purchases.qty) num, JSON_EXTRACT(purchases.product, '$.\"id\"') keyholder
                     FROM purchases  Where old = 'false'
-                    GROUP BY product
-                  ) pc ON p.id = pc.product
+                    GROUP BY keyholder
+                  ) pc ON p.id = pc.keyholder
         LEFT JOIN ( SELECT SUM(transfers.qty) num, JSON_EXTRACT(transfers.to_product, '$.\"id\"') product
                     FROM transfers  Where old = 'false'
                     GROUP BY product
@@ -137,9 +137,9 @@ static public function generateInvoiceNumber()
 
     // Ensure ID does not exist
     // Generate new one if ID already exists
-    // while (Sales::whereId($id)->count() > 0) {
-    //     $id = static::generateNumericKey();
-    // }
+    while (Sales::whereId($id)->count() > 0) {
+        $id = static::generateNumericKey();
+    }
 
     return $id;
 }

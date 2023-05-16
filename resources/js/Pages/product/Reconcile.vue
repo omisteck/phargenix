@@ -3,6 +3,7 @@
  <div class="row layout-top-spacing" id="cancel-row">
      <div class="col-lg-12">
         <a href="#" class="btn btn-success mb-3 ml-3"  data-toggle="modal" data-target="#createModel" >Product Reconcile</a>
+        <a href="/reconciles" class="btn btn-success mb-3 ml-3"  >Multiple Reconcile</a>
      </div>
     
 

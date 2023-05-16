@@ -64,7 +64,7 @@
                     <tr v-for="(result, index) in laravelData.data" :key="result.id" >
                         <td>{{ parseInt(index)+1 }}</td>
                         <td>{{ result.desc }}</td>
-                        <td>{{ result.created_at | moment("ddd, MM Do YYYY") }}</td>
+                        <td>{{ result.created_at | moment("D MMMM, YYYY") }}</td>
                         <td v-if="result.type == 'purchases' || result.type == 'sales returned' || result.types == 'reconcile' ">{{ result.qty }}</td>
                         <td v-else></td>
                         <td v-if="result.type == 'transfer' || result.type == 'sales' ">{{ result.qty }}</td>

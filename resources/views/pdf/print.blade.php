@@ -116,7 +116,11 @@
             <tr>
                 <td>{{ json_decode($sale->data)->name }}</td>
                 <td><b>{{ $sale->qty}}</b></td>
+                @if ($sale->qty > 0)
                 <td><b>{{ $sale->total / $sale->qty}}</b></td>
+                @else
+                <td><b>0</b></td>
+                @endif
                 <td><b>{{ $sale->total}}</b></td>
             </tr>
 
@@ -130,7 +134,7 @@
                 <td></td>
                 <td></td>
                 <td><b>Subtotal</b></td>
-                <td><b>{{ $Sales[0]->invoice_total + $Sales[0]->invoice_discount }}</b></td>
+                <td><b>{{ $sum }}</b></td>
 
             </tr>
             <tr>
@@ -144,15 +148,15 @@
                 <td></td>
                 <td></td>
                 <td><b>Total</b></td>
-                <td><b>{{ $Sales[0]->invoice_total }}</b></td>
+                <td><b>{{ $sum - $Sales[0]->invoice_discount }}</b></td>
 
             </tr>
 
             <tr>
                 <td></td>
                 <td></td>
-                <td><b>Paid</b>: <b>{{ $Sales[0]->invoice_total }}</b></td>
-                <td><b>Change</b>: <b>{{ $Sales[0]->invoice_paid - $Sales[0]->invoice_total}}</b></td>
+                <td><b>Paid</b>: <b>{{ $Sales[0]->invoice_paid }}</b></td>
+                <td><b>Change</b>: <b>{{ $Sales[0]->invoice_paid - ($sum - $Sales[0]->invoice_discount) }}</b></td>
             </tr>
         </table>
 

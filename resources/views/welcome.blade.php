@@ -44,7 +44,7 @@
                                 </div>
                             @endif
 								
-                                <a class="button button-success" href="#">Power by @omisteck </a>
+                                <a class="button button-success" href="#">Power by @omisteck- </a>
 							</div>
 						</div>
 						<div class="hero-media">

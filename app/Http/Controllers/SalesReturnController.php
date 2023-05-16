@@ -33,7 +33,6 @@ class SalesReturnController extends Controller
 
         if($request->has('search') && $request->search != ''){
             $sales->where('data->name','LIKE', '%'.$request->search .'%')
-            ->orWhere('invoice_number', 'LIKE', '%'.$request->search .'%')
             ->orWhereHas('branch', function($q) use($request) {
                 $q->where('shortname', 'LIKE', '%'.$request->search .'%');
              })->orWhereHas('user', function( $query ) use ( $request ){
@@ -66,20 +65,16 @@ class SalesReturnController extends Controller
     public function store(Request $request)
     {
         $this->validate($request,[
-            'invoice_number' => 'required|exists:sales,invoice_number',
-            'id' => 'required|exists:sales,id',
+            'item' => 'required',
+            'qty' => 'required|min:1',
         ]);
 
-        Sales::where('id', $request->id)->delete();
-        $sum = Sales::where('invoice_number', $request->invoice_number)->sum('total');
-        Sales::where('invoice_number', $request->invoice_number)->update(['invoice_total' => $sum]);
+
         Sales_Return::create([
-            'invoice_number' => $request->invoice_number,
-            'data' => $request->data,
+            'data' => json_encode($request->item),
             'qty' => $request->qty,
             'user_id' => Auth::user()->id,
-            'sale_id' => $request->id,
-            'branch_id' => $request->branch_id,
+            'branch_id' => Helpers::active_branch()['id'],
         ]);
 
         return response()->json(['success' => 'You have return'], 200);

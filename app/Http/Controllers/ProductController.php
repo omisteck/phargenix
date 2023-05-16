@@ -34,11 +34,11 @@ class ProductController extends Controller
   
     public function product(Request $request){
         if($request->has('branch')){
+            
             $products = Helpers::search_product($request->product,$request->branch);
         }else{
             $products = Helpers::search_product($request->product);
-        }
-
+        }   
         return response()->json($products,200);
     }
 

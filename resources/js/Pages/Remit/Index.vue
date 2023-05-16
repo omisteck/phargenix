@@ -49,7 +49,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="remit in laravelData.data" :key="remit.id">
-                        <td>{{ remit.created_at | moment("ddd, MMM Do YYYY") }}</td>
+                        <td>{{ remit.Date }}</td>
                         <td v-if="remit.user">{{ remit.user.name }}</td>
                         <td v-else>User Deleted</td>
                         <td>&#8358;{{ remit.Cash }}</td>
@@ -122,7 +122,8 @@
 </div>
 </div>
 
-<div class="modal fade" id="createModel" tabindex="-1" role="dialog" aria-labelledby="createModelLabel" aria-hidden="true">
+
+<div class="modal fade" id="createModel" tabindex="-1" role="dialog" aria-labelledby="createModelLabel" aria-hidden="true"> 
     <div class="modal-dialog" role="document">
 <form  method="POST" @submit.prevent="remitSave"> 
         <div class="modal-content">
@@ -139,11 +140,11 @@
                         <div class="form-group col-md-6">
                             <label for="type">Staff</label>
                             <div class="col">
-                                                         <select id="staff" class="form-control d-inline-block" v-model="remit.staff" @change="getData" required>
+                                                          <select id="staff" class="form-control d-inline-block" v-model="remit.staff" @change="getData" required>
                                                                 <option value='' disabled>Select Staff</option>
-                                                                <option v-for="staff in staffs" :key="staff.id" :value="staff.user.id" >{{staff.user.name}}</option>
-                                                            </select>
-                                                      </div>
+                                                               <option v-for="staff in staffs" :key="staff.id" :value="staff.user.id" >{{staff.user.name}}</option>
+                                                            </select> 
+                                                      </div> 
                         </div>
                         <div class="form-group col-md-6">
                             <label for="qty">Date</label>
@@ -180,6 +181,14 @@
                         <div class="form-group col-md-6">
                             <label for="qty">Remitted Cash</label>
                             <input type="number" v-model="remit.remitted" class="form-control text-primary" required >
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="type">To Enter</label>
+                             <input type="number" v-model="remit.toenter" class="form-control text-primary" required >
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="type">To deleted</label>
+                             <input type="number" v-model="remit.todelete" class="form-control text-primary" required >
                         </div>
                    </div>
                 </div>
@@ -248,6 +257,14 @@
                             <label for="qty">Remitted Cash</label>
                             <input type="number" v-model="edit.Remitted" class="form-control text-primary" required >
                         </div>
+                        <div class="form-group col-md-6">
+                            <label for="type">To Enter</label>
+                             <input type="number" v-model="edit.toenter"  class="form-control text-primary" required >
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="type">To Deleted</label>
+                             <input type="number" v-model="edit.todelete"  class="form-control text-primary" required >
+                        </div>
                    </div>
                 </div>
 
@@ -260,7 +277,7 @@
         </div>
     </form>
     </div> 
-</div>  
+</div> 
                                 </div>
 
 </layout>

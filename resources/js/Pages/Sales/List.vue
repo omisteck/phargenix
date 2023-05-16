@@ -50,16 +50,39 @@
 
                 </tbody>
                 <tfoot>
+                    
                     <tr>
-                       <th>Grand Total</th>
+                       <th></th>
                                                         <th></th>
                                                         <th></th>
                                                         <th></th>
-                                                        <th><h4>&#8358;{{ subTotal(sales, "invoice_total") }}</h4></th>
+                                                        <th>Total</th>
                                                         <th></th>
                                                         <th></th>
                                                         <th></th>
-                        <th class="no-content">Actions</th>
+                        <th class="no-content"><h4>&#8358;{{ total }}</h4></th>
+                    </tr>
+                    <tr>
+                       <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th>Discount</th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                        <th class="no-content"><h4>&#8358;{{ discount }}</h4></th>
+                    </tr>
+                    <tr>
+                       <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th>Grand Total</th>
+                                                        <th></th>
+                                                        <th></th>
+                                                        <th></th>
+                        <th class="no-content"><h4>&#8358;{{ sum }}</h4></th>
                     </tr>
                 </tfoot>
             </table>
@@ -82,7 +105,7 @@ export default {
   // Using the shorthand
 //   layout: Layout,
 
-props : ['sales'],
+props : ['sales', 'sum', 'total', 'discount'],
 
   data: function () {
     return {
@@ -112,9 +135,7 @@ mounted : function(){
 },
 
   methods: {
-      subTotal(cart,index){
-        return cart.reduce((acc, item) => acc + parseInt(item[index]), 0);
-    },
+
   }
 
 };

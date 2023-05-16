@@ -23,6 +23,32 @@ class ReconcileController extends Controller
         return Inertia::render('product/Reconcile');
     }
 
+    public function reconciles(){
+        return Inertia::render('product/Reconciles');
+    }
+
+    public function store_max(Request $request){
+        $this->validate($request, [
+            'items' => "required|array",
+        ]);
+        foreach($request->items as $purchase){
+
+            //update the selling price and the cost;
+            product::where('id', $purchase["item"]["id"])->update(["selling_price" => $purchase["item"]["selling_price"]]);
+
+            Reconcile::create([
+                "data" => json_encode($purchase["item"]),
+                "remark" => '',
+                "type" => 'in',
+                "branch_id" => Helpers::active_branch()['id'],
+                "qty" => $purchase["qty"],
+                "user_id" => auth()->user()->id,
+            ]);
+        }
+
+        return response()->json(['success' => 'Reconcile Created successfully'],200);
+    }
+
     public function search(Request $request){
 
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;

@@ -124,9 +124,10 @@ class PaymentController extends Controller
      * @param  \App\Models\Payment  $payment
      * @return \Illuminate\Http\Response
      */
-    public function show(Payment $payment)
+    public function show($payment)
     {
-        //
+        $payments = Payment::where('invoice_number', $payment)->with(['branch','user', 'supplier'])->get();
+        return Inertia::render('Payment/Single', [ 'payments' => $payments]);
     }
 
     /**
@@ -185,6 +186,7 @@ class PaymentController extends Controller
                 'mode' => $request->mode,
                 'remark' => $request->remark,
                 'supplier_id' => $purchases->first()->supplier,
+                'settlement' => 'false'
             ]);
         }else{
             return response()->json(['errors' => [['The amount enter is more than the balance of this invoice']]], 428);

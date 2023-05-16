@@ -42,10 +42,19 @@ class BreakdownController extends Controller
             return Carbon::parse($item->created_at)->format('Y-m-d');
        });
        
+       $static = Sales::where('user_id', $request->staff)
+            ->when($request->has('date'), function ($query) use ($request) {
+                $query->whereDate('created_at', $request->date);
+            })
+            ->when($request->has('shift'), function ($query) use ($request) {
+                $query->where('shift', $request->shift);
+            })
+            ->groupBy(['invoice_number', 'invoice_discount'])->get(['invoice_discount','invoice_number'])->sum('invoice_discount');
+
        foreach($sales as $key => $sale){
         $sale['count'] = $sale->count();
         $sale['date'] = $key;
-        $sale['grandTotal'] = number_format($sale->sum('total'), 2  );
+        $sale['grandTotal'] = number_format($sale->sum('total') - $static, 2  );
 
     }
 

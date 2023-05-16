@@ -1,5 +1,5 @@
 <?php
-
+// die('server usage limit');
 use Illuminate\Contracts\Http\Kernel;
 use Illuminate\Http\Request;
 

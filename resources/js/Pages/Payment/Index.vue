@@ -56,7 +56,7 @@
                                                         <td>{{ payment.remark }}</td>
                                                         <td v-if="payment.user">{{ payment.user.name }}</td>
                                                         <td v-else>Deleted User</td>
-                                                        <td>{{ payment.created_at | moment("ddd, MM Do YYYY") }}</td>
+                                                        <td>{{ payment.created_at | moment("D MMMM, YYYY") }}</td>
                                                         <td class="text-center">
                                                             
                                                             <div class="btn-group " role="group">

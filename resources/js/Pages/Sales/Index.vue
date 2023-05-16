@@ -42,6 +42,7 @@
                                                         <th>Qty</th>
                                                         <th>Total</th>
                                                         <th>Mode</th>
+                                                        <th>Date</th>
                                                         <th>Branch</th>
                                                         <th>Sold by</th>
                                                         <th class="no-content">Actions</th>
@@ -54,8 +55,9 @@
                                                         <td>{{ JSON.parse(sale.data).name }}</td>
                                                         <td>{{ JSON.parse(sale.data).selling_price }}</td>
                                                         <td>{{ sale.qty }}</td>
-                                                        <td>{{ sale.total }}</td>
+                                                        <td>{{ sale.invoice_total }}</td>
                                                         <td>{{ sale.mode }}</td>
+                                                        <td>{{ sale.created_at | moment("D MMMM, YYYY") }}</td>
                                                         <td v-if="sale.branch != null">{{ sale.branch.shortname }}</td>
                                                         <td v-else>No branch </td>
                                                         <td v-if="sale.user != null">{{ sale.user.name }}</td>
@@ -85,6 +87,7 @@
                                                         <th>Qty</th>
                                                         <th>Total</th>
                                                         <th>Mode</th>
+                                                        <th>Date</th>
                                                         <th>Branch</th>
                                                         <th>Sold by</th>
                         <th class="no-content">Actions</th>

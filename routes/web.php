@@ -51,6 +51,7 @@ Route::middleware(['auth','isSetup'])->group(function () {
         Route::get('user/branches/{user}', [StaffController::class, 'user_branches'])->name('staff.branches');
         Route::post('login/as/staff', [StaffController::class, 'loginAs'])->name('login.as');
         Route::post('save/permission', [StaffController::class, 'permission'])->name('permission.save');
+        Route::post('/permission/current', [StaffController::class, 'current_permission']);
         
     
         Route::resource('suppliers', SupplierController::class);
@@ -91,6 +92,8 @@ Route::middleware(['auth','isSetup'])->group(function () {
     
         Route::resource('reconcile', ReconcileController::class);
         Route::get('api/reconcile', [ReconcileController::class, 'search'])->name('reconcile.search');
+        Route::get('reconciles', [ReconcileController::class, "reconciles"]);
+        Route::post('/reconciles', [ReconcileController::class, "store_max"]);
     
         Route::resource('transfer', TransferController::class);
         Route::get('api/transfer', [TransferController::class, 'search'])->name('transfer.search');

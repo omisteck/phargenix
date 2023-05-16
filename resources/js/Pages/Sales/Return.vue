@@ -36,7 +36,6 @@
             <table id="zero-config" class="table dt-table-hover dataTable" style="width: 100%;" role="grid">
                 <thead>
                     <tr role="row">
-                                                        <th>Invoice Number</th>
                                                         <th>Product</th>
                                                         <th>Selling Price</th>
                                                         <th>Qty</th>
@@ -49,7 +48,6 @@
                 <tbody>
 
  <tr v-for="sale in laravelData.data" :key="sale.id">
- <td>{{ sale.invoice_number }}</td>
                                                         <td>{{ JSON.parse(sale.data).name }}</td>
                                                         <td>{{ JSON.parse(sale.data).selling_price }}</td>
                                                         <td>{{ sale.qty }}</td>
@@ -68,13 +66,12 @@
                 </tbody>
                 <tfoot>
                     <tr>
-                       <th>Invoice Number</th>
                                                         <th>Product</th>
                                                         <th>Selling Price</th>
                                                         <th>Qty</th>
                                                         <th>Total</th>
                                                         <th>Branch</th>
-                                                        <th>Sold by</th>
+                                                        <th>Staff</th>
                         <th v-if="$can('Manage Sales Return')" class="no-content">Actions</th>
                     </tr>
                 </tfoot>
@@ -118,7 +115,7 @@
 
 <div class="modal fade" id="createModel" tabindex="-1" role="dialog" aria-labelledby="createModelLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
-<form > 
+<form @submit.prevent="return_sales()"> 
         <div class="modal-content">
             
             <div class="modal-header">
@@ -129,37 +126,34 @@
             </div>
             <div class="modal-body">
                 
-                    <div class="input-group mb-4">
-                                <input type="text" class="form-control" v-model="details.invoice" required placeholder="Invoice Number" aria-label="Invoice Number">
-                                <div class="input-group-append">
-                                <button class="btn btn-success" @click="load" type="button">Load</button>
-                                </div>
-                    </div>
+                <div class="form-group mb-4">
+                                                            <label for="inputAddress">Select Product </label>
+                                                            <cool-select
+      v-model="sales.item"
+      :items="products"
+      :placeholder="sales.item ? '' : 'Select product'"
+      item-text="name"
+      disable-filtering-by-search
+      @search="onSearch"
+    />
+                                                        </div>
 
-                <div :class="'table-responsive ' + table ">
-                                                    <table class="table table-sm" >
-                                                        <thead>
-                                                            <tr>
-                                                                <th>Item name</th>
-                                                                <th>Qty</th>
-                                                                <th>price</th>
-                                                                <th>Total</th>
-                                                                <th>Return</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            <tr v-for="sale in sales" :key="sale.id">
-                                                                <td>{{ JSON.parse(sale.data).name }}</td>
-                                                                <td>{{ sale.qty }}</td>
-                                                                <td>{{ JSON.parse(sale.data).selling_price }}</td>
-                                                                <td>{{ sale.total }}</td>
-                                                                <td> <button type="button" @click="return_sales(sale)" class="btn btn-sm btn-danger">Return</button></td>
-                                                            </tr>
+    <div class="form-group mb-4">
+                                                            <label for="inputAddress">Qty </label>
+                                                            <input type="number" class="form-control" id="sale" v-model="sales.qty"  required placeholder="Enter QTY">
+                                                        </div>
 
-                                                        </tbody>
-                                                    </table>
-                                                </div>
+                                                        <div class="form-group mb-4">
+                                                        <label for="remark">Remark</label>
+                                                        <textarea required class="form-control" id="remark" v-model="sales.remark" rows="3" maxlength="50"></textarea>
+                                                    </div>
+
                 
+            </div>
+
+             <div class="modal-footer">
+                <button class="btn btn-danger" data-dismiss="modal"><i class="flaticon-cancel-12"></i> Discard</button>
+                <button type="submit" class="btn btn-primary">Save</button>
             </div>
         </div>
     </form>
@@ -175,6 +169,7 @@ import Layout from "../Layout/Layout.vue";
 import { Inertia } from '@inertiajs/inertia'
 import VueElementLoading from "vue-element-loading";
 import axios from 'axios';
+import { CoolSelect } from "vue-cool-select";
 
 export default {
   // Using the shorthand
@@ -182,6 +177,7 @@ export default {
 
   data: function () {
     return {
+        products : [],
         laravelData: {},
        filter : {
            pagination : 5,
@@ -203,6 +199,7 @@ export default {
 components: {
 'layout' : Layout,
 VueElementLoading,
+CoolSelect,
     
   },
   created : function () {
@@ -218,19 +215,16 @@ mounted : function(){
 
   methods: {
 
-load(){
-    axios.get('/return/sold/'+this.details.invoice)
-    .then(response => {
-        this.sales = response.data;
-        this.table = 'd-block';
-    }).catch(error => {
-                this.isLoading = false;
-                let errors = error.response.data.errors;
-                for (let field of Object.keys(errors)) {
-                    this.$toast.error(errors[field][0], 'error');
-                }
-            });;
-},
+      onSearch(search){
+        const lettersLimit = 2;
+        if (search.length > lettersLimit) {
+            axios.get('/search/products?product='+search+'&branch=true' )
+            .then( response => {
+                this.products = response.data;
+            });
+        }
+    },
+
       getResults(page =1) {
 
                 axios.get('/api/return/sold?page=' + page +"&pagination=" + this.filter.pagination  +"&search=" + this.filter.search)
@@ -239,7 +233,7 @@ load(){
                     });
             },
 
-         return_sales(sale){
+         return_sales(){
 this.$swal.fire({
   title: 'Are you sure?',
   text: "You won't be able to revert this!",
@@ -253,10 +247,8 @@ this.$swal.fire({
 }).then((result) => {
   if (result.isConfirmed) {
       this.isLoading = true;
-            axios.post(route('sold.store',sale))
+            axios.post(route('sold.store'), this.sales)
             .then((response) => {
-                this.details.invoice ='';
-                this.table="d-none";
                 $('#createModel').modal('hide');
                 this.getResults();
                 this.isLoading = false;

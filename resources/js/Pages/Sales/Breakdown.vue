@@ -58,7 +58,7 @@
                 </thead>
                 <tbody>
                     <tr v-for="(sale, index) in laravelData.data" :key="sale.id" >
-                        <td>{{ sale[0].created_at | moment("ddd, MM Do YYYY") }}</td>
+                        <td>{{ sale[0].created_at | moment("D MMMM, YYYY") }}</td>
                         <td v-if="sale[0].user">{{ sale[0].user.name }}</td>
                         <td v-if="sale[0].branch">{{ sale[0].branch.name }}</td> 
                         <td>{{ sale.count }}</td> 

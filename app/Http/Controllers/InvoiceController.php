@@ -18,7 +18,8 @@ class InvoiceController extends Controller
             return Inertia::render('Invoice/Purchase', [ 'purchases' => $data]);
         }else{
             $data = Sales::where('invoice_number', $invoice_number)->with(['user'])->get();
-            return Inertia::render('Invoice/Sales', [ 'sales' => $data]);
+            $sum = Sales::where('invoice_number', $invoice_number)->sum('invoice_total');
+            return Inertia::render('Invoice/Sales', [ 'sales' => $data, 'sum' => $sum ]);
         }
         // return view('invoice/pdf', [ 'sales' => $Sales]);
 

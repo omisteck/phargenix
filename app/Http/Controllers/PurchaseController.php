@@ -48,7 +48,7 @@ class PurchaseController extends Controller
         
         ($request->has('pagination'))? $pagination = $request->pagination : $pagination = 5;
 
-        $purchases = Purchase::where('branch_id', Helpers::active_branch()['id'])
+        $purchases = Purchase::where('branch_id', Helpers::active_branch()['id'])->groupBy(['invoice_number', 'supplier', 'settlement','user_id', 'branch_id','created_at'])
         ->distinct()
         ->select('invoice_number','supplier','settlement','user_id', 'branch_id','created_at')
         ->with(['user','branch', 'supplier']);
@@ -67,8 +67,13 @@ class PurchaseController extends Controller
 
         }
 
-    	$purchases = $purchases->orderBy('created_at', 'desc')->paginate($pagination);
-        
+    	$purchases = $purchases->orderBy('created_at', 'desc')->paginate($pagination)->toArray();
+        $data = [];
+        foreach($purchases['data'] as $purchase){
+            $purchase['total'] = Purchase::where('invoice_number', $purchase['invoice_number'])->sum('total');
+            array_push($data, $purchase);
+        }
+        $purchases['data'] = $data;
     	return response()->json($purchases);
 
     }

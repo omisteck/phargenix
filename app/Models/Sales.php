@@ -12,7 +12,7 @@ class Sales extends Model
     use SoftDeletes;
     protected $guarded = [];
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * Get the user that owns the Sales

@@ -22,7 +22,7 @@ class Purchase extends Model
 
     public function supplier()
     {
-        return $this->belongsTo(supplier::class, 'supplier');
+        return $this->belongsTo(Supplier::class, 'supplier');
     }
 
 }

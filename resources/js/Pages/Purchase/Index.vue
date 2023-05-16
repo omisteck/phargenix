@@ -37,6 +37,7 @@
                 <thead>
                     <tr role="row">
                                                         <th>Invoice Number</th>
+                                                        <th>Invoice Total</th>
                                                         <th>Branch</th>
                                                         <th>Supplier</th>
                                                         <th>Added by</th>
@@ -49,6 +50,7 @@
 
  <tr v-for="purchase in laravelData.data" :key="purchase.id">
  <td>{{ purchase.invoice_number }}</td>
+  <td>{{ purchase.total }}</td>
                                                         <td v-if="purchase.branch != null">{{ purchase.branch.shortname }}</td>
                                                         <td v-else>No branch </td>
                                                         <td v-if="purchase.supplier != null">{{ purchase.supplier.name }}</td>
@@ -67,6 +69,7 @@
                                                                     <inertia-link class="dropdown-item" :href="'/invoices/'+ purchase.invoice_number+'?purchase'">Print Recipt</inertia-link>
                                                                     <inertia-link class="dropdown-item" :href="'purchases/'+purchase.invoice_number+'/edit'">Edit</inertia-link>
                                                                     <a class="dropdown-item text-success " @click="paymentModal(purchase)" href="#">Record Payment</a>
+                                                                    <inertia-link class="dropdown-item" :href="'/payments/'+purchase.invoice_number">View Payments</inertia-link>
                                                                     <a class="dropdown-item text-danger " @click="deleteSale(purchase)" href="#">Delete</a>
                                                                 </div>
                                                             </div>
@@ -77,6 +80,7 @@
                 <tfoot>
                     <tr>
                        <th>Invoice Number</th>
+                       <th>Invoice Total</th>
                                                         <th>Branch</th>
                                                         <th>Supplier</th>
                                                         <th>Added by</th>

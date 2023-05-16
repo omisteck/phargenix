@@ -301,11 +301,14 @@
             </div>
             <div class="modal-body">
                 <div class="row" >
-
+                    <div class="col-12 mb-5">
+                        <h3>Current Access</h3>
+                        <span class="m-2 btn btn-success btn-sm" v-for="access in permission.currentAccess" :key="access.id">{{access.name}}</span>
+                    </div>
                     <div class="col-6" v-for="permit in permissions" :key="permit.id">
                         <div class="n-chk">
                             <label class="new-control new-checkbox checkbox-success">
-                            <input type="checkbox" class="new-control-input" v-model="permission.access" :value="permit.name">
+                            <input type="checkbox"  class="new-control-input" v-model="permission.access" :value="permit.name">
                             <span class="new-control-indicator"></span>{{ permit.name}}
                             </label>
                         </div>
@@ -365,6 +368,7 @@ props : ['branches', 'roles', 'permissions'],
 
         permission : {
             user: {},
+            currentAccess : [],
             access:[],
         },
     };
@@ -410,7 +414,13 @@ components: {
             },
     givePermission(user){
         this.permission.user = user;
-        $('#permission').modal('show');
+         axios.post('/permission/current', user)
+                .then( response => {
+                this.permission.currentAccess = response.data;     
+        
+
+
+        }).then($('#permission').modal('show'));
     },
     savePermission(){
         axios.post('save/permission', this.permission)

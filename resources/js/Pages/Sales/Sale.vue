@@ -23,7 +23,7 @@
                                                                 <input type="text" class="form-control" id="staff" placeholder="Staff Name" disabled :value="$page.props.auth.user.name">
                                                             </div>
                                                             <div class="form-group col-md-4">
-                                                                <label for="inovice">Invoice Number</label>
+                                                                <label for="inovice">Invoice Number | <a href="#" @click="getInvoiceNumberNew()" ><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#009688" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-repeat"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg></a> </label>
                                                                 <input type="text" class="form-control" id="inovice" readonly :value="invoice_number" placeholder="Invoice Number">
                                                             </div>
                                                             <div class="form-group col-md-4">
@@ -273,6 +273,7 @@ created : function(){
     $(document).ready(function(){
         $('.remove').remove();
     })
+    // this.getInvoiceNumber();
 },
 mounted : function(){
     this.cart.invoice = this.invoice_number;
@@ -281,12 +282,16 @@ mounted : function(){
     }else{
         localStorage.setItem("cart",JSON.stringify([]));
     }
+    document.addEventListener("backbutton", this.getInvoiceNumber, false);
     this.getInvoiceNumber();
     this.isLoading = false;
     $(document).ready(function() {
             App.init();
       });
+
 },
+
+
 
 components: {
 'layout' : Layout,
@@ -306,6 +311,15 @@ components: {
       getInvoiceNumber(){
           axios.get('/api/invoice')
          .then( response => {
+             console.log(response.data.invoice);
+                this.cart.invoice = this.invoice_number = response.data.invoice;                        
+            });
+          
+      },
+      getInvoiceNumberNew(){
+          axios.get('/api/invoice?regenerate')
+         .then( response => {
+             console.log(response.data.invoice);
                 this.cart.invoice = this.invoice_number = response.data.invoice;                        
             });
           

@@ -63,10 +63,11 @@ class RemitController extends Controller
             'date' => 'required|date'
         ]);
 
-        $sales['cash'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'cash')->sum('total'));
-        $sales['transfer'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'transfer')->sum('total'));
-        $sales['pos'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'pos')->sum('total'));
-        $sales['total'] = Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->sum('total');
+        $sales['cash'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'cash')->sum('total')  -  Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'cash')->groupBy(['user_id','invoice_number', 'invoice_discount'])->get(['invoice_discount','invoice_number'])->sum('invoice_discount'));
+        $sales['transfer'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'transfer')->sum('total') - Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'transfer')->groupBy(['user_id','invoice_number', 'invoice_discount'])->get(['invoice_discount','invoice_number'])->sum('invoice_discount'));
+        $sales['pos'] = number_format(Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'pos')->sum('total') - Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->where('mode' , 'pos')->groupBy(['user_id','invoice_number', 'invoice_discount'])->get(['invoice_discount','invoice_number'])->sum('invoice_discount'));
+        $sales['discount'] = Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->groupBy(['user_id','invoice_number', 'invoice_discount'])->get(['invoice_discount','invoice_number'])->sum('invoice_discount');
+        $sales['total'] = Sales::where('user_id', $request->staff)->whereDate('created_at', $request->date)->sum('total') -$sales['discount'];
 
         return response()->json($sales);
     }
@@ -79,6 +80,8 @@ class RemitController extends Controller
             'pos' => 'required',
             'cash' => 'required',
             'transfer' => 'required',
+            'todelete' => 'required',
+            'toenter' => 'required',
             'remitted' => 'required',
             'date' => 'required|date',
         ]);
@@ -97,7 +100,9 @@ class RemitController extends Controller
             'Transfer' => $request->transfer,
             'total' => $request->total,
             'Remitted' => $request->remitted,
-            'Balance' => ($request->remitted - $request->total),
+            'todelete' => $request->todelete,
+            'toenter' => $request->toenter,
+            'Balance' => ( ($request->todelete + $request->remitted) - ($request->total + $request->toenter)),
             'date' => $request->date,
             'approve_by' => auth()->user()->id,
         ]);
@@ -140,11 +145,15 @@ class RemitController extends Controller
     {
         $this->validate($request, [
             'id' => 'required|integer',
+            'todelete' => 'required',
+            'toenter' => 'required',
             'Remitted' => 'required',
         ]);
 
         $remit->update([
-            'Balance' => ($request->Remitted - $request->Total),
+            'todelete' => $request->todelete,
+            'toenter' => $request->toenter,
+            'Balance' => ( ($request->todelete + $request->Remitted) - ($request->Total + $request->toenter)),
             'Remitted' => $request->Remitted
         ]);
     }

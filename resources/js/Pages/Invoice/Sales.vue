@@ -111,7 +111,7 @@
                                                                                                 <p class="">Sub Total: </p>
                                                                                             </div>
                                                                                             <div class="col-sm-4 col-5">
-                                                                                                <p class="">{{ parseInt(sales[0].invoice_total) - parseInt(sales[0].invoice_discount)}}</p>
+                                                                                                <p class="">{{ parseInt(sum)}}</p>
                                                                                             </div>
                                                                                            
                                                                                             <div class="col-sm-8 col-7">
@@ -124,7 +124,7 @@
                                                                                                 <h4 class="">Grand Total : </h4>
                                                                                             </div>
                                                                                             <div class="col-sm-4 col-5 grand-total-amount">
-                                                                                                <h4 class="">{{sales[0].invoice_total}}</h4>
+                                                                                                <h4 class="">{{ parseInt(sum) - parseInt(sales[0].invoice_discount)}}</h4>
                                                                                             </div>
                                                                                         </div>
                                                                                     </div>
@@ -235,7 +235,7 @@ export default {
   // Using the shorthand
 //   layout: Layout,
 
-props : ['sales'], 
+props : ['sales', 'sum' ], 
   data: function () {
     return {
         mail : {
