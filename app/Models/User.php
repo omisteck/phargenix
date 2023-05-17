@@ -53,6 +53,8 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
+
+    protected $appends = ['access_permissions'];
     /**
      * Get the user that owns the User
      *
@@ -119,6 +121,10 @@ class User extends Authenticatable
               }
           }
           return $permissions;
+      }
+      
+      public function getAccessPermissionsAttribute() {
+          return json_encode($this->getAllPermissions()->pluck("name"));
       }
       
 }
