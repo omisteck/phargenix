@@ -25,7 +25,6 @@ class SalesController extends Controller
 
     public function __construct()
     {
-<<<<<<< HEAD
         $this->middleware(['permission:Manage Product'])->except(['invoice_number', 'print', 'create', 'old_sales', 'store', 'index']);
     }
 
@@ -34,31 +33,17 @@ class SalesController extends Controller
     {
 
         if ((session('used_invoice') == false || session('used_invoice') == null) && (session('invoice') == null || session('invoice') == '')) {
-=======
-        $this->middleware(['permission:Manage Product'])->except(['invoice_number', 'print', 'create', 'old_sales', 'store']);
-    }
-
-
-    public function invoice_number()
-    {
-
-        if (session('used_invoice') == false && (session('invoice') == null || session('invoice') == '')) {
->>>>>>> 338549e9c56777cb57a60c2a8b1f64bd23dcb542
             session(['invoice' => Helpers::generateInvoiceNumber()]);
         } elseif (session('used_invoice') == true && (session('invoice') != null)) {
             session(['invoice' => Helpers::generateInvoiceNumber()]);
             session(['used_invoice' => false]);
             session()->save();
         }
-<<<<<<< HEAD
         if ($request->has('regenerate')) {
             session(['invoice' => Helpers::generateInvoiceNumber()]);
             session(['used_invoice' => false]);
             session()->save();
         }
-=======
-
->>>>>>> 338549e9c56777cb57a60c2a8b1f64bd23dcb542
         return response()->json(['invoice' => session('invoice'), 'used_invoice' => session('used_invoice')], 200);
     }
 
@@ -69,13 +54,10 @@ class SalesController extends Controller
         $pdf = PDF::loadView('pdf.print', ['Sales' => $sales, 'sum' => $sum], [], [
             'format' => [72, 236],
         ]);
-<<<<<<< HEAD
         session(['invoice' => Helpers::generateInvoiceNumber()]);
         session(['used_invoice' => false]);
         session()->save();
 
-=======
->>>>>>> 338549e9c56777cb57a60c2a8b1f64bd23dcb542
         return $pdf->stream('recipt.pdf');
     }
 
